@@ -1,9 +1,14 @@
 {
   "version": 2,
-  "rewrites": [
+  "functions": {
+    "dist/server.js": {
+      "maxDuration": 10
+    }
+  },
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/dist/server.js"
+      "src": "/(.*)",
+      "dest": "dist/server.js"
     }
   ]
 }
