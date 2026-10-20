@@ -11,6 +11,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.send('🚀 Backend do NewerisFood rodando perfeitamente!');
+})
 // Registramos as rotas da empresa com o prefixo '/empresa'
 // Logo, a rota final será POST /empresa/login
 app.use('/empresa', empresaRoutes);
@@ -20,6 +23,12 @@ app.use('/empresa/pedido', pedidoRoutes);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
-});
+// Em ambiente de desenvolvimento local ele escuta a porta
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  });
+}
+
+// 👈 Export para a Vercel/Serverless
+export default app;

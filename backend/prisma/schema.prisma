@@ -13,7 +13,7 @@ datasource db {
   
 }
 model Empresa {
-  id        Int       @id @default(autoincrement())
+  id        Int       @id @default(autoincrement()) 
   nome      String
   email     String    @unique
   senha     String
