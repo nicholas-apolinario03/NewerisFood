@@ -5,8 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
-  "build": "prisma generate && tsc",
-  "postinstall": "prisma generate"
+    "build": "prisma generate && tsc",
+    "postinstall": "prisma generate"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -20,13 +20,12 @@
     "esbuild": "^0.28.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "prisma": "^7.10.0",
-    "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "prisma": "^5.22.0",
+    "tsx": "^4.23.15"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
-    "@prisma/client": "^7.10.0",
+    "@prisma/client": "^5.22.0",
     "bcrypt": "^6.0.0",
     "pg": "^8.23.1"
   }
