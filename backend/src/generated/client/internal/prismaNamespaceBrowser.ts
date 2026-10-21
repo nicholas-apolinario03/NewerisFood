@@ -17,8 +17,8 @@
 
 import * as runtime from "@prisma/client/runtime/index-browser"
 
-export type * from '../models.ts'
-export type * from './prismaNamespace.ts'
+export type * from '../models.js'
+export type * from './prismaNamespace.js'
 
 export const Decimal = runtime.Decimal
 
@@ -54,7 +54,9 @@ export const ModelName = {
   Empresa: 'Empresa',
   Insumo: 'Insumo',
   Produto: 'Produto',
-  ProdutoInsumo: 'ProdutoInsumo'
+  ProdutoInsumo: 'ProdutoInsumo',
+  Cliente: 'Cliente',
+  Pedido: 'Pedido'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -119,12 +121,47 @@ export const ProdutoInsumoScalarFieldEnum = {
 export type ProdutoInsumoScalarFieldEnum = (typeof ProdutoInsumoScalarFieldEnum)[keyof typeof ProdutoInsumoScalarFieldEnum]
 
 
+export const ClienteScalarFieldEnum = {
+  id: 'id',
+  empresaId: 'empresaId',
+  telefone: 'telefone',
+  nome: 'nome',
+  endereco: 'endereco',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type ClienteScalarFieldEnum = (typeof ClienteScalarFieldEnum)[keyof typeof ClienteScalarFieldEnum]
+
+
+export const PedidoScalarFieldEnum = {
+  id: 'id',
+  empresaId: 'empresaId',
+  clienteId: 'clienteId',
+  status: 'status',
+  pedido: 'pedido',
+  observacoes: 'observacoes',
+  valorTotal: 'valorTotal',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type PedidoScalarFieldEnum = (typeof PedidoScalarFieldEnum)[keyof typeof PedidoScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -141,4 +178,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

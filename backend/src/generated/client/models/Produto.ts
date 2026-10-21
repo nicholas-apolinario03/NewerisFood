@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.ts"
-import type * as Prisma from "../internal/prismaNamespace.ts"
+import type * as $Enums from "../enums.js"
+import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model Produto
@@ -240,8 +240,8 @@ export type ProdutoWhereInput = {
   preco?: Prisma.FloatFilter<"Produto"> | number
   categoria?: Prisma.StringFilter<"Produto"> | string
   disponivel?: Prisma.BoolFilter<"Produto"> | boolean
-  empresa?: Prisma.XOR<Prisma.EmpresaScalarRelationFilter, Prisma.EmpresaWhereInput>
   ingredientes?: Prisma.ProdutoInsumoListRelationFilter
+  empresa?: Prisma.XOR<Prisma.EmpresaScalarRelationFilter, Prisma.EmpresaWhereInput>
 }
 
 export type ProdutoOrderByWithRelationInput = {
@@ -252,12 +252,13 @@ export type ProdutoOrderByWithRelationInput = {
   preco?: Prisma.SortOrder
   categoria?: Prisma.SortOrder
   disponivel?: Prisma.SortOrder
-  empresa?: Prisma.EmpresaOrderByWithRelationInput
   ingredientes?: Prisma.ProdutoInsumoOrderByRelationAggregateInput
+  empresa?: Prisma.EmpresaOrderByWithRelationInput
 }
 
 export type ProdutoWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  empresaId_nome?: Prisma.ProdutoEmpresaIdNomeCompoundUniqueInput
   AND?: Prisma.ProdutoWhereInput | Prisma.ProdutoWhereInput[]
   OR?: Prisma.ProdutoWhereInput[]
   NOT?: Prisma.ProdutoWhereInput | Prisma.ProdutoWhereInput[]
@@ -267,9 +268,9 @@ export type ProdutoWhereUniqueInput = Prisma.AtLeast<{
   preco?: Prisma.FloatFilter<"Produto"> | number
   categoria?: Prisma.StringFilter<"Produto"> | string
   disponivel?: Prisma.BoolFilter<"Produto"> | boolean
-  empresa?: Prisma.XOR<Prisma.EmpresaScalarRelationFilter, Prisma.EmpresaWhereInput>
   ingredientes?: Prisma.ProdutoInsumoListRelationFilter
-}, "id">
+  empresa?: Prisma.XOR<Prisma.EmpresaScalarRelationFilter, Prisma.EmpresaWhereInput>
+}, "id" | "empresaId_nome">
 
 export type ProdutoOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -305,8 +306,8 @@ export type ProdutoCreateInput = {
   preco: number
   categoria: string
   disponivel?: boolean
-  empresa: Prisma.EmpresaCreateNestedOneWithoutProdutosInput
   ingredientes?: Prisma.ProdutoInsumoCreateNestedManyWithoutProdutoInput
+  empresa: Prisma.EmpresaCreateNestedOneWithoutProdutosInput
 }
 
 export type ProdutoUncheckedCreateInput = {
@@ -326,8 +327,8 @@ export type ProdutoUpdateInput = {
   preco?: Prisma.FloatFieldUpdateOperationsInput | number
   categoria?: Prisma.StringFieldUpdateOperationsInput | string
   disponivel?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  empresa?: Prisma.EmpresaUpdateOneRequiredWithoutProdutosNestedInput
   ingredientes?: Prisma.ProdutoInsumoUpdateManyWithoutProdutoNestedInput
+  empresa?: Prisma.EmpresaUpdateOneRequiredWithoutProdutosNestedInput
 }
 
 export type ProdutoUncheckedUpdateInput = {
@@ -377,6 +378,11 @@ export type ProdutoListRelationFilter = {
 
 export type ProdutoOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type ProdutoEmpresaIdNomeCompoundUniqueInput = {
+  empresaId: number
+  nome: string
 }
 
 export type ProdutoCountOrderByAggregateInput = {
@@ -678,8 +684,8 @@ export type ProdutoSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   preco?: boolean
   categoria?: boolean
   disponivel?: boolean
-  empresa?: boolean | Prisma.EmpresaDefaultArgs<ExtArgs>
   ingredientes?: boolean | Prisma.Produto$ingredientesArgs<ExtArgs>
+  empresa?: boolean | Prisma.EmpresaDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.ProdutoCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["produto"]>
 
@@ -717,8 +723,8 @@ export type ProdutoSelectScalar = {
 
 export type ProdutoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "empresaId" | "nome" | "descricao" | "preco" | "categoria" | "disponivel", ExtArgs["result"]["produto"]>
 export type ProdutoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  empresa?: boolean | Prisma.EmpresaDefaultArgs<ExtArgs>
   ingredientes?: boolean | Prisma.Produto$ingredientesArgs<ExtArgs>
+  empresa?: boolean | Prisma.EmpresaDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.ProdutoCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProdutoIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -731,8 +737,8 @@ export type ProdutoIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type $ProdutoPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Produto"
   objects: {
-    empresa: Prisma.$EmpresaPayload<ExtArgs>
     ingredientes: Prisma.$ProdutoInsumoPayload<ExtArgs>[]
+    empresa: Prisma.$EmpresaPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1136,8 +1142,8 @@ readonly fields: ProdutoFieldRefs;
  */
 export interface Prisma__ProdutoClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  empresa<T extends Prisma.EmpresaDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmpresaDefaultArgs<ExtArgs>>): Prisma.Prisma__EmpresaClient<runtime.Types.Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ingredientes<T extends Prisma.Produto$ingredientesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Produto$ingredientesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProdutoInsumoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  empresa<T extends Prisma.EmpresaDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmpresaDefaultArgs<ExtArgs>>): Prisma.Prisma__EmpresaClient<runtime.Types.Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
