@@ -30,31 +30,34 @@ export default function Header() {
                         Painel
                     </Link>
 
-                    <Link
-                        to="/perfil"
-                        className="header-principal__link"
-                    >
-                        Perfil
-                    </Link>
+                   
 
 
-                    <Link
-                        to="/cadastro"
-                        className="header-principal__botao"
-                    >
-                        Começar
-                    </Link>
                      <Link
                         to="/pedido"
-                        className="header-principal__botao"
+                        className="header-principal__link"
                     >
                         Pedido
                     </Link>
                      <Link
                         to="/comanda"
-                        className="header-principal__botao"
+                        className="header-principal__link"
                     >
                         Comanda
+                    </Link>
+                    
+                    <Link
+                        to="/cadastro"
+                        className="header-principal__link"
+                    >
+                        Começar
+                    </Link>
+                    
+                     <Link
+                        to="/perfil"
+                        className="header-principal__link"
+                    >
+                        Perfil
                     </Link>
                 </nav>
 

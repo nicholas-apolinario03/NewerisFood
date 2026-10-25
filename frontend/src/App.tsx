@@ -4,6 +4,7 @@ import {EstoqueEmpresa} from "./pages/EstoqueEmpresa"
 import { PainelEmpresa } from "./pages/PainelEmpresa";
 import { PaginaPedidos } from "./pages/Pedidos";
 import { LoginEmpresa } from "./pages/LoginEmpresa";
+import { ProtecaoRota } from "./components/ProtecaoRota";
 
 function App() {
  
@@ -11,9 +12,10 @@ return(
   <Routes>
       <Route path ="/cadastro"  element={<CadastroEmpresa/>}/>
       <Route path ="/login"  element={<LoginEmpresa/>}/>
-      <Route path="/estoque" element={<EstoqueEmpresa/>}/>
-      <Route path="/painel" element={<PainelEmpresa/>}/>
-       <Route path="/pedido" element={<PaginaPedidos/>}/>
+      <Route path="/estoque" element={
+        <ProtecaoRota> <EstoqueEmpresa/> </ProtecaoRota>}/>
+      <Route path="/painel" element={<ProtecaoRota> <PainelEmpresa/> </ProtecaoRota>}/>
+       <Route path="/pedido" element={ <ProtecaoRota><PaginaPedidos/> </ProtecaoRota>}/>
      
         
       
