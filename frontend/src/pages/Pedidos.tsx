@@ -3,7 +3,6 @@ import { usePedidos } from "../hooks/usePedido";
 import { useCardapio } from "../hooks/useCardapio";
 import { FormularioPedido } from "../components/pedido/FormularioPedido";
 import { CardPedido } from "../components/pedido/CardPedido";
-import type { NovoPedidoDTO, Pedido } from "../types/pedido";
 
 export function PaginaPedidos() {
     const { pedidos, carregando, erro, criarPedido, recarregar, alterarStatusPedido } = usePedidos();

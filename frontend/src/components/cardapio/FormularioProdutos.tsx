@@ -1,7 +1,7 @@
 import { useState, useEffect, type FormEvent } from "react";
 import type { ProdutoCardapio, NovoProdutoDTO, ItemReceitaDTO } from "../../types/cardapio";
 import type { Insumo } from "../../types/estoque";
-
+import "../../css/formulario.css";
 type FormularioProdutoProps = {
     produto?: ProdutoCardapio;
     insumosDisponiveis?: Insumo[];
@@ -80,22 +80,38 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
     }
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "500px" }}>
+        <div className="pagina-login">
+        <form onSubmit={handleSubmit} className="formulario formulario--amplo">
+            <header className="formulario__cabecalho">
+                <h1>{produto ? "Editar produto" : "Cadastrar produto"}</h1>
+                <p>Preencha os dados e configure a ficha técnica do produto.</p>
+            </header>
+            <div className="formulario__campo">
+            <label htmlFor="produto-nome">Nome do produto</label>
             <input
+                id="produto-nome"
                 type="text"
                 placeholder="Nome do Produto (ex: Pizza Calabresa)"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
                 required
             />
+            </div>
 
+            <div className="formulario__campo">
+            <label htmlFor="produto-descricao">Descrição</label>
             <textarea
+                id="produto-descricao"
                 placeholder="Descrição (ex: Molho, mussarela, calabresa e cebola)"
                 value={descricao}
                 onChange={(e) => setDescricao(e.target.value)}
             />
+            </div>
 
+            <div className="formulario__campo">
+            <label htmlFor="produto-preco">Preço</label>
             <input
+                id="produto-preco"
                 type="number"
                 step="0.01"
                 placeholder="Preço (ex: 45.00)"
@@ -103,13 +119,15 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
                 onChange={(e) => setPreco(e.target.value === "" ? "" : Number(e.target.value))}
                 required
             />
+            </div>
 
             {/* Campo de Seleção / Criação de Categoria */}
             <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                <label style={{ fontSize: "14px", fontWeight: "bold" }}>Categoria:</label>
+                <label htmlFor="produto-categoria">Categoria:</label>
                 
                 {!criandoNovaCat ? (
                     <select
+                        id="produto-categoria"
                         value={categoria}
                         onChange={(e) => {
                             if (e.target.value === "__NOVA__") {
@@ -154,7 +172,7 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
                 )}
             </div>
 
-            <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <label className="formulario__checkbox">
                 <input
                     type="checkbox"
                     checked={disponivel}
@@ -189,10 +207,10 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
                         style={{ width: "100px" }}
                     />
 
-                    <button type="button" onClick={adicionarIngrediente}>Adicionar</button>
+                    <button type="button" className="formulario__botao-secundario" onClick={adicionarIngrediente}>Adicionar</button>
                 </div>
 
-                <ul>
+                <ul className="formulario__lista">
                     {ingredientes.map(item => {
                         const insumoInfo = insumosDisponiveis.find(i => i.id === item.insumoId);
                         return (
@@ -205,9 +223,10 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
                 </ul>
             </div>
 
-            <button type="submit" disabled={carregando} style={{ marginTop: "15px" }}>
+            <button type="submit" className="formulario__botao" disabled={carregando} style={{ marginTop: "15px" }}>
                 {carregando ? "Salvando..." : (produto ? "Salvar Alterações" : "Cadastrar Produto")}
             </button>
         </form>
+        </div>
     );
 }

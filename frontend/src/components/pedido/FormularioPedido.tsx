@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import type { ProdutoCardapio } from "../../types/cardapio";
 import type { ItemPedido, NovoPedidoDTO } from "../../types/pedido";
+import "../../css/formulario.css";
 
 type FormularioPedidoProps = {
     produtosDisponiveis: ProdutoCardapio[];
@@ -83,13 +84,14 @@ export function FormularioPedido({ produtosDisponiveis = [], aoSalvar, carregand
     }
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px", maxWidth: "600px" }}>
-            <h3>📝 Novo Pedido (Balcão / Telefone)</h3>
+        <div className="pagina-login">
+        <form onSubmit={handleSubmit} className="formulario formulario--amplo">
+            <header className="formulario__cabecalho"><h1>📝 Novo Pedido</h1><p>Balcão ou telefone</p></header>
 
             {/* Seção: Dados do Cliente */}
-            <div>
+            <div className="formulario__secao">
                 <h4>Dados do Cliente</h4>
-                <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+                <div className="formulario__linha">
                     <input 
                         type="text" 
                         placeholder="Telefone (WhatsApp)" 
@@ -120,9 +122,9 @@ export function FormularioPedido({ produtosDisponiveis = [], aoSalvar, carregand
             <hr />
 
             {/* Seção: Adicionar Produtos ao Pedido por Categoria */}
-            <div>
+            <div className="formulario__secao">
                 <h4>Itens do Pedido</h4>
-                <div style={{ display: "flex", gap: "8px", marginBottom: "10px", flexWrap: "wrap" }}>
+                <div className="formulario__linha">
                     
                     {/* Select com Optgroup separando por Categoria */}
                     <select 
@@ -159,19 +161,19 @@ export function FormularioPedido({ produtosDisponiveis = [], aoSalvar, carregand
                         style={{ flex: 1, minWidth: "120px" }}
                     />
 
-                    <button type="button" onClick={adicionarItem}>Adicionar</button>
+                    <button type="button" className="formulario__botao-secundario" onClick={adicionarItem}>Adicionar</button>
                 </div>
 
                 {/* Lista de itens adicionados */}
-                <ul style={{ paddingLeft: "20px", margin: "10px 0" }}>
+                <ul className="formulario__lista">
                     {itens.map((item, index) => (
                         <li key={index} style={{ marginBottom: "5px" }}>
                             <strong>{item.quantidade}x {item.nome}</strong> — R$ {(item.precoUnitario * item.quantidade).toFixed(2)}
                             {item.observacao && <span style={{ color: "red", fontSize: "12px" }}> ({item.observacao})</span>}
-                            <button type="button" onClick={() => removerItem(index)} style={{ marginLeft: "10px", color: "red", border: "none", background: "none", cursor: "pointer" }}>✕</button>
+                            <button type="button" className="formulario__botao-secundario" onClick={() => removerItem(index)}>✕</button>
                         </li>
                     ))}
-                    {itens.length === 0 && <p style={{ color: "#777", fontStyle: "italic" }}>Nenhum item adicionado ainda.</p>}
+                    {itens.length === 0 && <p className="formulario__mensagem--vazia">Nenhum item adicionado ainda.</p>}
                 </ul>
 
                 {itens.length > 0 && (
@@ -191,9 +193,10 @@ export function FormularioPedido({ produtosDisponiveis = [], aoSalvar, carregand
                 rows={2}
             />
 
-            <button type="submit" disabled={carregando} style={{ padding: "10px", fontWeight: "bold", background: "#28a745", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer" }}>
+            <button type="submit" className="formulario__botao" disabled={carregando}>
                 {carregando ? "Salvando Pedido..." : "🚀 Finalizar e Lançar Pedido"}
             </button>
         </form>
+        </div>
     );
 }

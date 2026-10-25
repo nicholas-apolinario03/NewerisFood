@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from "react";
-
+import "../../css/formulario.css";
 import type { Funcionario, NovofuncionarioDTO } from "../../types/funcionario";
 
 
