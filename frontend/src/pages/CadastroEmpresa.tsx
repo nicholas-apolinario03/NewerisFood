@@ -2,6 +2,7 @@ import { useState} from "react";
 import { empresaService } from "../services/empresaService";
 import { FormularioEmpresa } from "../components/empresa/FormularioEmpresa";
 import type { NovaEmpresaDTO } from "../types/empresa";
+import DashboardLayout from "../layouts/DashboardLayout";
 
 export function CadastroEmpresa() {
     const [carregando, setCarregando] = useState(false);
@@ -24,10 +25,10 @@ export function CadastroEmpresa() {
         }
     }
     return (
-        <div>
+        <DashboardLayout>
             <h2>Cadastro de Nova Empresa</h2>
             {erro && <p style={{ color: "red" }}>{erro}</p>}
             <FormularioEmpresa aoSalvar={enviarCadastro} carregando={carregando} />
-        </div>
+        </DashboardLayout>
     )
 }

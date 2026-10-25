@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { empresaService } from "../services/empresaService";
+import DashboardLayout from "../layouts/DashboardLayout";
 
 
 export function LoginEmpresa() {
@@ -26,7 +27,7 @@ export function LoginEmpresa() {
         }
     }
     return (
-        <div>
+        <DashboardLayout>
             <h2>Login Empresa</h2>
             {erro && <p style={{ color: "red" }}>{erro}</p>}
             <form onSubmit={enviarLogin}>
@@ -35,6 +36,6 @@ export function LoginEmpresa() {
 
             <button type="submit">{carregando ? "Entrando..." : "Entrar"}</button>
             </form>
-        </div>
+        </DashboardLayout>
     )
 }

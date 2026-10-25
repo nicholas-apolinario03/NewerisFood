@@ -3,6 +3,7 @@ import { useCardapio } from "../hooks/useCardapio";
 import { useEstoque } from "../hooks/useEstoque";
 import { ListarCardapio } from "../components/cardapio/ListaCardapio";
 import { useState } from "react";
+import DashboardLayout from "../layouts/DashboardLayout";
 
 export function PainelEmpresa(){
     const {produto,erro, carregando, cadastrarProduto} = useCardapio()
@@ -13,7 +14,7 @@ export function PainelEmpresa(){
         new Set(produto.map(p => p.categoria).filter(Boolean))
     );
     return(
-        <div>
+        <DashboardLayout>
             <div>
                   <button 
                     onClick={() => setExibirFormulario(!exibirFormulario)}
@@ -39,6 +40,6 @@ export function PainelEmpresa(){
               {erro && <p style={{ color: "red" }}>{erro}</p>}
           
            <ListarCardapio  produtos={produto}/>
-        </div>
+        </DashboardLayout>
     )
 }

@@ -3,6 +3,7 @@ import { usePedidos } from "../hooks/usePedido";
 import { useCardapio } from "../hooks/useCardapio";
 import { FormularioPedido } from "../components/pedido/FormularioPedido";
 import { CardPedido } from "../components/pedido/CardPedido";
+import DashboardLayout from "../layouts/DashboardLayout";
 
 export function PaginaPedidos() {
     const { pedidos, carregando, erro, criarPedido, recarregar, alterarStatusPedido } = usePedidos();
@@ -17,7 +18,7 @@ export function PaginaPedidos() {
     const saiuEntrega = pedidos.filter(p => p.status === 'saiu para entrega');
 
     return (
-        <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+        <DashboardLayout >
             
             {/* Cabeçalho do Painel */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -111,6 +112,6 @@ export function PaginaPedidos() {
                 </div>
 
             </div>
-        </div>
+        </DashboardLayout>
     );
 }
