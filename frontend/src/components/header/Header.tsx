@@ -1,7 +1,7 @@
 import { Link, useNavigate, } from "react-router-dom";
 
 import "../../css/header.css";
-import Logo from "../assets/newerisbook-favicon.svg"
+
 
 export default function Header() {
     const navigate =
@@ -15,7 +15,6 @@ export default function Header() {
                     to="/"
                     className="header-principal__logo"
                 >
-                    <img src={Logo} alt="Logo do site" />
                     <span> NewerisFood</span>
                 </Link>
 
