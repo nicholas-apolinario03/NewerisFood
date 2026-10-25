@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { empresaService } from "../services/empresaService";
 import DashboardLayout from "../layouts/DashboardLayout";
-
+import "../css/formulario.css"
 
 export function LoginEmpresa() {
     const [email, setEmail] = useState("");
