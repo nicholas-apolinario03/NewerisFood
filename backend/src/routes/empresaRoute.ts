@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import { prisma } from '../lib/prisma'; // Ajuste o caminho se necessário para o seu arquivo prisma.ts
+import { authMiddleware } from '../services/middleware';
 
 dotenv.config();
 
@@ -99,7 +100,7 @@ empresaRoutes.post('/login', async (req, res) => {
         return res.status(500).json({ erro: 'Erro interno ao realizar login.' });
     }
 });
-empresaRoutes.get('/perfil', async (req, res) => {
+empresaRoutes.get('/perfil',authMiddleware, async (req, res) => {
     try {
         // Alinhado com o token gerado no login/cadastro que usa 'id'
         const empresaId = Number((req as any).id);
