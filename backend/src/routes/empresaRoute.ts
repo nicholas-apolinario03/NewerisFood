@@ -18,7 +18,7 @@ empresaRoutes.post('/cadastro', async (req, res) => {
     try {
         // 1. Verifica se já existe uma empresa com esse e-mail
         const empresaExistente = await prisma.empresa.findUnique({
-            where: { email }
+            where: { email, telefone }
         });
 
         if (empresaExistente) {
@@ -36,6 +36,8 @@ empresaRoutes.post('/cadastro', async (req, res) => {
                 nome,
                 email,
                 senha: senhaHash,
+                telefone,
+                endereco
                 // Se adicionou telefone/endereco no schema, inclua aqui:
                 // telefone,
                 // endereco
@@ -116,10 +118,41 @@ empresaRoutes.get('/perfil', authMiddleware, async (req, res) => {
         if (!empresa) {
             return res.status(404).json({ erro: 'Empresa não encontrada.' });
         }
-
+        console.log(empresa)
         return res.status(200).json(empresa);
     } catch (error) {
         console.error('Erro ao mostrar empresa:', error);
         return res.status(500).json({ erro: 'Erro interno ao buscar perfil.' });
+    }
+});
+empresaRoutes.put('/atualizar', authMiddleware, async (req, res) => {
+    try {
+        const empresaId = Number((req as any).empresaId);
+        const { nome, telefone, email, senha, endereco } = req.body;
+
+        if (!empresaId || isNaN(empresaId)) {
+            return res.status(400).json({ erro: 'ID da empresa não encontrado no token.' });
+        }
+
+        // Dados a atualizar (podes tratar a senha se for opcional)
+        const dadosAtualizados: any = { nome, telefone, email, endereco };
+        
+        if (senha) {
+            const senhaHash = await bcrypt.hash(senha, 10);
+            dadosAtualizados.senha = senhaHash;
+        }
+
+        const empresaAtualizada = await prisma.empresa.update({
+            where: { id: empresaId },
+            data: dadosAtualizados,
+        });
+
+        return res.status(200).json({
+            mensagem: 'Perfil atualizado com sucesso!',
+            empresa: empresaAtualizada
+        });
+    } catch (error) {
+        console.error('Erro ao atualizar empresa:', error);
+        return res.status(500).json({ erro: 'Erro interno ao atualizar perfil.' });
     }
 });

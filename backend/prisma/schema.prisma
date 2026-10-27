@@ -17,6 +17,8 @@ model Empresa {
   nome      String
   email     String    @unique
   senha     String
+  telefone  String   
+  endereco  String
   createdAt DateTime  @default(now())
   
   insumos   Insumo[]
