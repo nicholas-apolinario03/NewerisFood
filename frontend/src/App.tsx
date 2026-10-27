@@ -6,6 +6,7 @@ import { PaginaPedidos } from "./pages/Pedidos";
 import { LoginEmpresa } from "./pages/LoginEmpresa";
 import { ProtecaoRota } from "./components/ProtecaoRota";
 import { PublicRoute } from "./components/PublicRoute";
+import { PerfilEmpresa } from "./pages/PerfilEmpresa";
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
       <Route path="/estoque" element={<ProtecaoRota> <EstoqueEmpresa /> </ProtecaoRota>} />
       <Route path="/painel" element={<ProtecaoRota> <PainelEmpresa /> </ProtecaoRota>} />
       <Route path="/pedido" element={<ProtecaoRota><PaginaPedidos /> </ProtecaoRota>} />
+      <Route path="/perfil" element={<ProtecaoRota>< PerfilEmpresa /> </ProtecaoRota>} />
 
 
 

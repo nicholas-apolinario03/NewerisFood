@@ -23,4 +23,14 @@ export const empresaService = {
             throw error;
         }
     },
+     listar: async (): Promise<Empresa> => {
+            try {
+                const resposta = await api.get('/empresa/perfil');
+                return resposta.data;
+            } catch (error) {
+                console.error("Erro ao buscar o perfil da empresa", error);
+                throw error;
+            }
+        }
+    
 }
