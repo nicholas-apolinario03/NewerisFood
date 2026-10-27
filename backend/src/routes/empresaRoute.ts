@@ -100,10 +100,10 @@ empresaRoutes.post('/login', async (req, res) => {
         return res.status(500).json({ erro: 'Erro interno ao realizar login.' });
     }
 });
-empresaRoutes.get('/perfil',authMiddleware, async (req, res) => {
+empresaRoutes.get('/perfil', authMiddleware, async (req, res) => {
     try {
-        // Alinhado com o token gerado no login/cadastro que usa 'id'
-        const empresaId = Number((req as any).id);
+        // Usa empresaId igualzinho ao arquivo de estoque que já funciona
+        const empresaId = Number((req as any).empresaId);
 
         if (!empresaId || isNaN(empresaId)) {
             return res.status(400).json({ erro: 'ID da empresa não encontrado no token.' });
