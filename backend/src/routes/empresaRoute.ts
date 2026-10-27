@@ -99,3 +99,16 @@ empresaRoutes.post('/login', async (req, res) => {
         return res.status(500).json({ erro: 'Erro interno ao realizar login.' });
     }
 });
+empresaRoutes.get('/lista', async (req, res) => {
+    const id = Number((req as any).empresaId);
+    try {
+        const empresa = await prisma.empresa.findFirst({
+            where: { id },
+        })
+        return res.status(200).json(empresa)
+    } catch (error) {
+        console.error('Erro ao mostrar empresa:', error);
+        return res.status(500).json({ erro: 'Erro interno ao buscar insumos.' });
+    }
+
+})
