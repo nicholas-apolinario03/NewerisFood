@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { enviarMensagemWhatsApp } from '../services/whatsappService';
 
 export const whatsappRoutes = Router();
 
@@ -31,15 +32,20 @@ whatsappRoutes.post('/webhook', async (req, res) => {
             for (const entry of body.entry) {
                 for (const change of entry.changes) {
                     const value = change.value;
-                    
+
                     // Verifica se existem mensagens recebidas
                     if (value && value.messages && value.messages.length > 0) {
                         const mensagemRecebida = value.messages[0];
-                        const telefoneRemetente = mensagemRecebida.from; // Número de quem enviou
-                        const textoMensagem = mensagemRecebida.text?.body; // Conteúdo da mensagem
+                        const telefoneRemetente = mensagemRecebida.from;
+                        const textoMensagem = mensagemRecebida.text?.body;
 
-                        console.log(`Mensagem recebida de ${telefoneRemetente}: "${textoMensagem}"`);
+                        console.log(`Mensagem de ${telefoneRemetente}: "${textoMensagem}"`);
 
+                        // Exemplo de resposta automática simples
+                        await enviarMensagemWhatsApp(
+                            telefoneRemetente,
+                            `Olá! Bem-vindo à NewerisFood 🍕. Recebemos a tua mensagem: "${textoMensagem}". Em breve o nosso cardápio estará disponível aqui!`
+                        );
                         // Aqui no futuro vais colocar a lógica para responder o cliente (ex: cardápio, status do pedido)
                     }
                 }
