@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { empresaService } from "../services/empresaService";
 import DashboardLayout from "../layouts/DashboardLayout";
 import "../css/formulario.css";
+import { redirect } from "react-router-dom";
 
 export function LoginEmpresa() {
     const [email, setEmail] = useState("");
@@ -22,6 +23,7 @@ export function LoginEmpresa() {
             }
 
             alert("Login feito com sucesso!!!");
+            redirect("/painel")
         } catch (err) {
             setErro(
                 "Não foi possível realizar o login. Verifique o email e a senha."

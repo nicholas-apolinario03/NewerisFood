@@ -8,7 +8,7 @@ type PublicRouteProps = {
 export function PublicRoute({ children }: PublicRouteProps) {
 
     if (verificarSessao()) {
-        return <Navigate to="/dashboard" replace />;
+        return <Navigate to="/painel" replace />;
     }
 
     return children;
