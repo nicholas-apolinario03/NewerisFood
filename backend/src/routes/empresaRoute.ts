@@ -47,10 +47,10 @@ empresaRoutes.post('/cadastro', async (req, res) => {
         return res.status(201).json({
             mensagem: 'Empresa cadastrada com sucesso!',
             token,
-            empresa: { 
-                id: novaEmpresa.id, 
-                nome: novaEmpresa.nome, 
-                email: novaEmpresa.email 
+            empresa: {
+                id: novaEmpresa.id,
+                nome: novaEmpresa.nome,
+                email: novaEmpresa.email
             }
         });
 
@@ -87,10 +87,10 @@ empresaRoutes.post('/login', async (req, res) => {
         return res.json({
             mensagem: 'Login realizado com sucesso!',
             token,
-            empresa: { 
-                id: empresa.id, 
-                nome: empresa.nome, 
-                email: empresa.email 
+            empresa: {
+                id: empresa.id,
+                nome: empresa.nome,
+                email: empresa.email
             }
         });
 
@@ -100,15 +100,25 @@ empresaRoutes.post('/login', async (req, res) => {
     }
 });
 empresaRoutes.get('/perfil', async (req, res) => {
-    const empresaId = Number((req as any).empresaId);
     try {
+        // Alinhado com o token gerado no login/cadastro que usa 'id'
+        const empresaId = Number((req as any).id);
+
+        if (!empresaId || isNaN(empresaId)) {
+            return res.status(400).json({ erro: 'ID da empresa não encontrado no token.' });
+        }
+
         const empresa = await prisma.empresa.findFirst({
-            where: { id:empresaId },
-        })
-        return res.status(200).json(empresa)
+            where: { id: empresaId },
+        });
+
+        if (!empresa) {
+            return res.status(404).json({ erro: 'Empresa não encontrada.' });
+        }
+
+        return res.status(200).json(empresa);
     } catch (error) {
         console.error('Erro ao mostrar empresa:', error);
-        return res.status(500).json({ erro: 'Erro interno ao buscar insumos.' });
+        return res.status(500).json({ erro: 'Erro interno ao buscar perfil.' });
     }
-
-})
+});
