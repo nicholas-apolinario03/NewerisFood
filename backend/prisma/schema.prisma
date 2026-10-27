@@ -25,7 +25,7 @@ model Empresa {
   produtos  Produto[]
 
   clientes Cliente[]
-
+  whatsappBusiness BusinessWhatsapp?
   pedidos Pedido[]
 }
 
@@ -99,4 +99,19 @@ model Pedido {
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
+}
+model BusinessWhatsapp {
+  id              Int      @id @default(autoincrement())
+  empresaId       Int      @unique @map("empresa_id")
+  phoneNumberId   String   @unique @map("phone_number_id")
+  wabaId          String   @map("waba_id")
+  accessToken     String   @map("access_token")
+  verifyToken     String?  @map("verify_token")
+  status          String   @default("ativo")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  empresa         Empresa  @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+
+  @@map("business_whatsapp")
 }
