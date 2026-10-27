@@ -100,10 +100,10 @@ empresaRoutes.post('/login', async (req, res) => {
     }
 });
 empresaRoutes.get('/perfil', async (req, res) => {
-    const id = Number((req as any).empresaId);
+    const empresaId = Number((req as any).empresaId);
     try {
         const empresa = await prisma.empresa.findFirst({
-            where: { id },
+            where: { id:empresaId },
         })
         return res.status(200).json(empresa)
     } catch (error) {
