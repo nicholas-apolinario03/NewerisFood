@@ -1,11 +1,38 @@
 import { Router } from 'express';
-import { enviarMensagemWhatsApp } from '../services/whatsappService';
+import axios from 'axios';
 
 export const whatsappRoutes = Router();
 
-// 1. Verificação do Webhook (O Meta faz um GET para validar a URL)
+// Função auxiliar para enviar mensagens via API do WhatsApp
+async function enviarMensagemWhatsApp(para: string, texto: string) {
+    const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+    const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+    try {
+        const url = `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`;
+
+        const payload = {
+            messaging_product: 'whatsapp',
+            to: para,
+            type: 'text',
+            text: { body: texto }
+        };
+
+        const headers = {
+            Authorization: `Bearer ${WHATSAPP_TOKEN}`,
+            'Content-Type': 'application/json',
+        };
+
+        await axios.post(url, payload, { headers });
+        console.log(`Mensagem enviada com sucesso para ${para}`);
+    } catch (error) {
+        console.error('Erro ao enviar mensagem pelo WhatsApp:', error);
+    }
+}
+
+// 1. Verificação do Webhook (GET)
 whatsappRoutes.get('/webhook', (req, res) => {
-    const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || 'seu_token_de_verificacao_seguro';
+    const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || 'minha_senha_secreta_123';
 
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
@@ -22,31 +49,28 @@ whatsappRoutes.get('/webhook', (req, res) => {
     return res.sendStatus(400);
 });
 
-// 2. Recebimento de Mensagens (O Meta faz um POST sempre que chega mensagem)
+// 2. Recebimento de Mensagens e Resposta Automática (POST)
 whatsappRoutes.post('/webhook', async (req, res) => {
     try {
         const body = req.body;
 
-        // Verifica se é um evento válido do WhatsApp Business Account
         if (body.object === 'whatsapp_business_account') {
             for (const entry of body.entry) {
                 for (const change of entry.changes) {
                     const value = change.value;
 
-                    // Verifica se existem mensagens recebidas
                     if (value && value.messages && value.messages.length > 0) {
                         const mensagemRecebida = value.messages[0];
                         const telefoneRemetente = mensagemRecebida.from;
                         const textoMensagem = mensagemRecebida.text?.body;
 
-                        console.log(`Mensagem de ${telefoneRemetente}: "${textoMensagem}"`);
+                        console.log(`Mensagem recebida de ${telefoneRemetente}: "${textoMensagem}"`);
 
-                        // Exemplo de resposta automática simples
+                        // Envia uma resposta automática de teste
                         await enviarMensagemWhatsApp(
                             telefoneRemetente,
-                            `Olá! Bem-vindo à NewerisFood 🍕. Recebemos a tua mensagem: "${textoMensagem}". Em breve o nosso cardápio estará disponível aqui!`
+                            `Olá! Bem-vindo à NewerisFood 🍕. Recebemos a tua mensagem: "${textoMensagem}". Em breve o cardápio estará disponível!`
                         );
-                        // Aqui no futuro vais colocar a lógica para responder o cliente (ex: cardápio, status do pedido)
                     }
                 }
             }
