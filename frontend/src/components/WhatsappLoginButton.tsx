@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 declare global {
   interface Window {
     FB: any;
-    fbAsyncInit: () => void;
   }
 }
 
@@ -12,60 +11,12 @@ interface WhatsAppLoginButtonProps {
 }
 
 export function WhatsAppLoginButton({ empresaId }: WhatsAppLoginButtonProps) {
-  const [carregandoSdk, setCarregandoSdk] = useState(true);
-
-  useEffect(() => {
-    // Se o FB já estiver carregado e pronto
-    if (window.FB) {
-      setCarregandoSdk(false);
-      return;
-    }
-
-    window.fbAsyncInit = function () {
-      window.FB.init({
-        appId: import.meta.env.VITE_FACEBOOK_APP_ID,
-        cookie: true,
-        xfbml: true,
-        version: 'v20.0',
-      });
-      setCarregandoSdk(false);
-    };
-
-    // Injeção limpa do script do SDK
-    if (!document.getElementById('facebook-jssdk')) {
-      const script = document.createElement('script');
-      script.id = 'facebook-jssdk';
-      script.src = 'https://connect.facebook.net/pt_BR/sdk.js';
-      script.async = true;
-      script.defer = true;
-      
-      script.onload = () => {
-        if (window.FB && carregandoSdk) {
-          try {
-            window.FB.init({
-              appId: import.meta.env.VITE_FACEBOOK_APP_ID,
-              cookie: true,
-              xfbml: true,
-              version: 'v20.0',
-            });
-            setCarregandoSdk(false);
-          } catch (e) {
-            console.error('Erro ao inicializar no onload:', e);
-          }
-        }
-      };
-
-      document.body.appendChild(script);
-    }
-  }, [carregandoSdk]);
-
   const lidarComConexao = () => {
     if (!window.FB) {
-      alert('O SDK da Meta ainda está a carregar. Aguarde um segundo e tente novamente.');
+      alert('O SDK do Facebook ainda não foi carregado pelo navegador. Recarrega a página e tenta novamente.');
       return;
     }
 
-    // Chamada segura do login após validação do SDK
     window.FB.login(
       function (response: any) {
         if (response.authResponse) {
@@ -100,18 +51,17 @@ export function WhatsAppLoginButton({ empresaId }: WhatsAppLoginButtonProps) {
   return (
     <button
       onClick={lidarComConexao}
-      disabled={carregandoSdk}
       style={{
-        backgroundColor: carregandoSdk ? '#ccc' : '#25D366',
+        backgroundColor: '#25D366',
         color: '#fff',
         padding: '10px 20px',
         borderRadius: '8px',
         border: 'none',
-        cursor: carregandoSdk ? 'not-allowed' : 'pointer',
+        cursor: 'pointer',
         fontWeight: 'bold',
       }}
     >
-      {carregandoSdk ? 'A carregar Meta SDK...' : 'Conectar WhatsApp Business'}
+      Conectar WhatsApp Business
     </button>
   );
 }
