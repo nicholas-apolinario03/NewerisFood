@@ -54,7 +54,8 @@ whatsappRoutes.post('/conectar', async (req, res) => {
             params: {
                 client_id: appId,
                 client_secret: appSecret,
-                code: code
+                code: code,
+                redirect_uri: 'https://neweris-food.vercel.app/perfil'
             }
         });
 
