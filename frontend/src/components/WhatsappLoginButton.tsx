@@ -22,7 +22,7 @@ export function WhatsAppLoginButton({ empresaId }: WhatsAppLoginButtonProps) {
         if (response.authResponse) {
           const code = response.authResponse.code;
 
-          fetch('https://neweris-food-opl5.vercel.app/api/whatsapp/conectar', {
+          fetch('https://neweris-food-opl5.vercel.app/whatsapp/conectar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code, empresaId }),
