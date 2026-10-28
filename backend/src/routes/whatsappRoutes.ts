@@ -56,7 +56,7 @@ whatsappRoutes.post('/conectar', async (req, res) => {
                 client_id: appId,
                 client_secret: appSecret,
                 code: code,
-                redirect_uri: 'https://neweris-food.vercel.app/perfil' // Certifica-te de que esta URL está exatamente igual à cadastrada no painel da Meta em "URIs de redirecionamento do OAuth válidos"
+                redirect_uri: '' // Certifica-te de que esta URL está exatamente igual à cadastrada no painel da Meta em "URIs de redirecionamento do OAuth válidos"
             }
         
         });
