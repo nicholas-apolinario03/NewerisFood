@@ -34,6 +34,103 @@ async function enviarMensagemWhatsApp(phoneNumberId: string, accessToken: string
     }
 }
 
+// 0. Endpoint para receber o código do Embedded Signup e conectar a empresa
+whatsappRoutes.post('/conectar', async (req, res) => {
+    const { code, empresaId } = req.body;
+
+    if (!code || !empresaId) {
+        return res.status(400).json({ 
+            sucesso: false, 
+            erro: 'Código de autorização (code) e ID da empresa são obrigatórios.' 
+        });
+    }
+
+    try {
+        const appId = process.env.META_APP_ID || '1844166906998944';
+        const appSecret = process.env.META_APP_SECRET;
+
+        // 1. Troca o código temporário por um User Access Token de longa duração na Meta
+        const tokenResponse = await axios.get(`https://graph.facebook.com/v20.0/oauth/access_token`, {
+            params: {
+                client_id: appId,
+                client_secret: appSecret,
+                code: code
+            }
+        });
+
+        const accessToken = tokenResponse.data.access_token;
+
+        if (!accessToken) {
+            return res.status(400).json({ sucesso: false, erro: 'Não foi possível obter o token de acesso da Meta.' });
+        }
+
+        // 2. Obtém os ativos partilhados (WABA ID e Phone Number ID) associados a este token
+        // Através do endpoint debug_token ou consultando as contas do WhatsApp do utilizador
+        const debugResponse = await axios.get(`https://graph.facebook.com/v20.0/debug_token`, {
+            params: {
+                input_token: accessToken,
+                access_token: `${appId}|${appSecret}`
+            }
+        });
+
+        // O granter_asset_id ou waba ID pode vir aqui, mas para garantir o WABA e Phone ID exatos do Embedded Signup:
+        // Buscamos as contas de WhatsApp Business associadas ao utilizador
+        const wabaResponse = await axios.get(`https://graph.facebook.com/v20.0/me/whatsapp_business_accounts`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+
+        const wabaId = wabaResponse.data?.data?.[0]?.id;
+
+        if (!wabaId) {
+            return res.status(400).json({ sucesso: false, erro: 'Nenhuma conta WABA encontrada para este utilizador.' });
+        }
+
+        // 3. Busca o Phone Number ID associado a este WABA
+        const phonesResponse = await axios.get(`https://graph.facebook.com/v20.0/${wabaId}/phone_numbers`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+
+        const phoneNumberId = phonesResponse.data?.data?.[0]?.id;
+
+        if (!phoneNumberId) {
+            return res.status(400).json({ sucesso: false, erro: 'Nenhum número de telefone do WhatsApp encontrado nesta WABA.' });
+        }
+
+        // 4. Salva ou atualiza na base de dados Neon via Prisma
+        const registro = await prisma.businessWhatsapp.upsert({
+            where: { empresaId: Number(empresaId) },
+            update: {
+                accessToken: accessToken,
+                wabaId: wabaId,
+                phoneNumberId: phoneNumberId,
+                status: 'CONECTADO',
+                updatedAt: new Date(),
+            },
+            create: {
+                empresaId: Number(empresaId),
+                accessToken: accessToken,
+                wabaId: wabaId,
+                phoneNumberId: phoneNumberId,
+                status: 'CONECTADO',
+            },
+        });
+
+        return res.status(200).json({
+            sucesso: true,
+            mensagem: 'WhatsApp conectado e guardado com sucesso!',
+            dados: registro
+        });
+
+    } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+            console.error('Erro na Meta API ao conectar:', JSON.stringify(error.response.data, null, 2));
+            return res.status(400).json({ sucesso: false, erro: error.response.data.error?.message || 'Erro na API da Meta.' });
+        }
+        console.error('Erro interno ao processar conexão WhatsApp:', error);
+        return res.status(500).json({ sucesso: false, erro: 'Erro interno no servidor ao conectar o WhatsApp.' });
+    }
+});
+
 // 1. Verificação do Webhook (GET) - Mantém-se genérica ou validada por token padrão
 whatsappRoutes.get('/webhook', (req, res) => {
     const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || 'minha_senha_secreta_123';
