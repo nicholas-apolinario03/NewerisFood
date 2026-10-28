@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import CardEmpresa from "../components/empresa/CardEmpresa";
+import { WhatsAppLoginButton } from "../components/WhatsappLoginButton"; // <--- Importa o componente do WhatsApp
 import DashboardLayout from "../layouts/DashboardLayout";
 import { empresaService } from "../services/empresaService";
 import type { Empresa, NovaEmpresaDTO } from "../types/empresa";
@@ -43,17 +44,30 @@ export function PerfilEmpresa() {
 
   return (
     <DashboardLayout>
-      <div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {loading && <p>A carregar perfil...</p>}
         
         {erro && <p>{erro}</p>}
 
         {!loading && !erro && empresa && (
-          <CardEmpresa 
-            empresa={empresa} 
-            onSalvarAlteracoes={handleSalvarAlteracoes}
-            carregando={salvando}
-          />
+          <>
+            <CardEmpresa 
+              empresa={empresa} 
+              onSalvarAlteracoes={handleSalvarAlteracoes}
+              carregando={salvando}
+            />
+
+            {/* Secção de Integração com o WhatsApp */}
+            <div style={{ background: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+              <h3>Integração com o WhatsApp</h3>
+              <p style={{ color: '#666', marginBottom: '15px' }}>
+                Conecte a conta do WhatsApp Business do seu restaurante para ativar o atendimento automatizado.
+              </p>
+              
+              {/* Passa o ID real da empresa logada para o botão */}
+              <WhatsAppLoginButton empresaId={empresa.id} />
+            </div>
+          </>
         )}
       </div>
     </DashboardLayout>
