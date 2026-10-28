@@ -20,6 +20,7 @@ export function WhatsAppLoginButton({ empresaId }: WhatsAppLoginButtonProps) {
     window.FB.login(
       function (response: any) {
         console.log('Resposta completa do FB.login:', response);
+
         if (response.authResponse) {
           const code = response.authResponse.code;
 
@@ -38,11 +39,11 @@ export function WhatsAppLoginButton({ empresaId }: WhatsAppLoginButtonProps) {
             })
             .catch((err) => console.error('Erro na requisição:', err));
         } else {
-          console.log('O utilizador cancelou o login ou fechou o pop-up.');
+          console.log('Utilizador cancelou o login.');
         }
       },
       {
-        scope: 'whatsapp_business_management,whatsapp_business_messaging',
+        config_id: '1024949793966061', // <-- O ID gerado na Meta
         response_type: 'code',
         override_default_response_type: true,
       }
