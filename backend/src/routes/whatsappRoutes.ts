@@ -38,6 +38,9 @@ async function enviarMensagemWhatsApp(phoneNumberId: string, accessToken: string
 whatsappRoutes.post('/conectar', async (req, res) => {
     const { code, empresaId } = req.body;
 
+    console.log('[WhatsApp Conectar] Recebido request para empresaId:', empresaId);
+    console.log('[WhatsApp Conectar] Código de autorização (code):', code ? 'Presente' : 'Ausente');
+
     if (!code || !empresaId) {
         return res.status(400).json({ 
             sucesso: false, 
@@ -49,51 +52,44 @@ whatsappRoutes.post('/conectar', async (req, res) => {
         const appId = process.env.META_APP_ID || '1844166906998944';
         const appSecret = process.env.META_APP_SECRET;
 
-        // 1. Troca o código temporário por um User Access Token de longa duração na Meta
-        // 1. Troca o código temporário por um User Access Token de longa duração na Meta
+        console.log('[WhatsApp Conectar] A tentar trocar código por token com redirect_uri: https://neweris-food.vercel.app/perfil');
+
+        // 1. Troca o código temporário por um User Access Token na Meta
         const tokenResponse = await axios.get(`https://graph.facebook.com/v20.0/oauth/access_token`, {
             params: {
                 client_id: appId,
                 client_secret: appSecret,
                 code: code,
-                redirect_uri: '' // Certifica-te de que esta URL está exatamente igual à cadastrada no painel da Meta em "URIs de redirecionamento do OAuth válidos"
+                redirect_uri: 'https://neweris-food.vercel.app/perfil'
             }
-        
         });
 
+        console.log('[WhatsApp Conectar] Token obtido com sucesso!');
         const accessToken = tokenResponse.data.access_token;
 
         if (!accessToken) {
             return res.status(400).json({ sucesso: false, erro: 'Não foi possível obter o token de acesso da Meta.' });
         }
 
-        // 2. Obtém os ativos partilhados (WABA ID e Phone Number ID) associados a este token
-        // Através do endpoint debug_token ou consultando as contas do WhatsApp do utilizador
-        const debugResponse = await axios.get(`https://graph.facebook.com/v20.0/debug_token`, {
-            params: {
-                input_token: accessToken,
-                access_token: `${appId}|${appSecret}`
-            }
-        });
-
-        // O granter_asset_id ou waba ID pode vir aqui, mas para garantir o WABA e Phone ID exatos do Embedded Signup:
-        // Buscamos as contas de WhatsApp Business associadas ao utilizador
+        // 2. Obtém as contas do WhatsApp Business associadas
         const wabaResponse = await axios.get(`https://graph.facebook.com/v20.0/me/whatsapp_business_accounts`, {
             headers: { Authorization: `Bearer ${accessToken}` }
         });
 
         const wabaId = wabaResponse.data?.data?.[0]?.id;
+        console.log('[WhatsApp Conectar] WABA ID encontrado:', wabaId);
 
         if (!wabaId) {
             return res.status(400).json({ sucesso: false, erro: 'Nenhuma conta WABA encontrada para este utilizador.' });
         }
 
-        // 3. Busca o Phone Number ID associado a este WABA
+        // 3. Busca o Phone Number ID
         const phonesResponse = await axios.get(`https://graph.facebook.com/v20.0/${wabaId}/phone_numbers`, {
             headers: { Authorization: `Bearer ${accessToken}` }
         });
 
         const phoneNumberId = phonesResponse.data?.data?.[0]?.id;
+        console.log('[WhatsApp Conectar] Phone Number ID encontrado:', phoneNumberId);
 
         if (!phoneNumberId) {
             return res.status(400).json({ sucesso: false, erro: 'Nenhum número de telefone do WhatsApp encontrado nesta WABA.' });
@@ -118,6 +114,8 @@ whatsappRoutes.post('/conectar', async (req, res) => {
             },
         });
 
+        console.log('[WhatsApp Conectar] Gravado na base de dados Neon com sucesso!');
+
         return res.status(200).json({
             sucesso: true,
             mensagem: 'WhatsApp conectado e guardado com sucesso!',
@@ -126,10 +124,16 @@ whatsappRoutes.post('/conectar', async (req, res) => {
 
     } catch (error: any) {
         if (axios.isAxiosError(error) && error.response) {
-            console.error('Erro na Meta API ao conectar:', JSON.stringify(error.response.data, null, 2));
-            return res.status(400).json({ sucesso: false, erro: error.response.data.error?.message || 'Erro na API da Meta.' });
+            console.error('--- ERRO DETALHADO DA META API ---');
+            console.error(JSON.stringify(error.response.data, null, 2));
+            console.error('-----------------------------------');
+            return res.status(400).json({ 
+                sucesso: false, 
+                erro: error.response.data.error?.message || 'Erro na API da Meta.',
+                detalhesMeta: error.response.data.error 
+            });
         }
-        console.error('Erro interno ao processar conexão WhatsApp:', error);
+        console.error('Erro interno inesperado:', error);
         return res.status(500).json({ sucesso: false, erro: 'Erro interno no servidor ao conectar o WhatsApp.' });
     }
 });
