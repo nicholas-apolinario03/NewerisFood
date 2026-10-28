@@ -19,6 +19,7 @@ export function WhatsAppLoginButton({ empresaId }: WhatsAppLoginButtonProps) {
 
     window.FB.login(
       function (response: any) {
+        console.log('Resposta completa do FB.login:', response);
         if (response.authResponse) {
           const code = response.authResponse.code;
 
