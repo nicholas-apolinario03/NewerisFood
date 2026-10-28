@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-// Estende a interface Window para o TypeScript reconhecer o SDK do Facebook
 declare global {
   interface Window {
     FB: any;
@@ -13,8 +12,14 @@ interface WhatsAppLoginButtonProps {
 }
 
 export function WhatsAppLoginButton({ empresaId }: WhatsAppLoginButtonProps) {
+  const [sdkCarregado, setSdkCarregado] = useState(false);
+
   useEffect(() => {
-    if (window.FB) return;
+    // Se o FB já estiver carregado e inicializado
+    if (window.FB) {
+      setSdkCarregado(true);
+      return;
+    }
 
     window.fbAsyncInit = function () {
       window.FB.init({
@@ -23,24 +28,27 @@ export function WhatsAppLoginButton({ empresaId }: WhatsAppLoginButtonProps) {
         xfbml: true,
         version: 'v20.0',
       });
+      setSdkCarregado(true);
     };
 
     // Injeção assíncrona do script do SDK do Facebook
-    (function (d, s, id) {
-      var js: HTMLScriptElement, fjs = d.getElementsByTagName(s)[0] as HTMLElement;
-      if (d.getElementById(id)) return;
-      js = d.createElement(s) as HTMLScriptElement;
-      js.id = id;
-      js.src = 'https://connect.facebook.net/pt_BR/sdk.js';
-      if (fjs && fjs.parentNode) {
-        fjs.parentNode.insertBefore(js, fjs);
-      }
-    })(document, 'script', 'facebook-jssdk');
+    if (!document.getElementById('facebook-jssdk')) {
+      (function (d, s, id) {
+        var js: HTMLScriptElement, fjs = d.getElementsByTagName(s)[0] as HTMLElement;
+        if (d.getElementById(id)) return;
+        js = d.createElement(s) as HTMLScriptElement;
+        js.id = id;
+        js.src = 'https://connect.facebook.net/pt_BR/sdk.js';
+        if (fjs && fjs.parentNode) {
+          fjs.parentNode.insertBefore(js, fjs);
+        }
+      })(document, 'script', 'facebook-jssdk');
+    }
   }, []);
 
   const lidarComConexao = () => {
-    if (!window.FB) {
-      alert('O SDK do Facebook ainda está a carregar. Tenta novamente em instantes.');
+    if (!window.FB || !sdkCarregado) {
+      alert('O SDK do Facebook ainda está a carregar. Aguarda um segundo e tenta novamente.');
       return;
     }
 
@@ -78,17 +86,18 @@ export function WhatsAppLoginButton({ empresaId }: WhatsAppLoginButtonProps) {
   return (
     <button
       onClick={lidarComConexao}
+      disabled={!sdkCarregado}
       style={{
-        backgroundColor: '#25D366',
+        backgroundColor: sdkCarregado ? '#25D366' : '#ccc',
         color: '#fff',
         padding: '10px 20px',
         borderRadius: '8px',
         border: 'none',
-        cursor: 'pointer',
+        cursor: sdkCarregado ? 'pointer' : 'not-allowed',
         fontWeight: 'bold',
       }}
     >
-      Conectar WhatsApp Business
+      {sdkCarregado ? 'Conectar WhatsApp Business' : 'A carregar SDK da Meta...'}
     </button>
   );
 }
