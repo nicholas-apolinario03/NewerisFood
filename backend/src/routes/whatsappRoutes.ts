@@ -55,11 +55,11 @@ whatsappRoutes.post('/conectar', async (req, res) => {
         console.log('[WhatsApp Conectar] A tentar trocar código por token com redirect_uri: https://neweris-food.vercel.app/perfil');
 
         // 1. Troca o código temporário por um User Access Token na Meta
-        const tokenResponse = await axios.get(`https://graph.facebook.com/v20.0/oauth/access_token`, {
+        const tokenResponse = await axios.post(`https://graph.facebook.com/v20.0/oauth/access_token`, null, {
             params: {
                 client_id: appId,
                 client_secret: appSecret,
-                code: code,
+                code: code
             }
         });
 
