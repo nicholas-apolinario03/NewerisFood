@@ -50,13 +50,15 @@ whatsappRoutes.post('/conectar', async (req, res) => {
         const appSecret = process.env.META_APP_SECRET;
 
         // 1. Troca o código temporário por um User Access Token de longa duração na Meta
+        // 1. Troca o código temporário por um User Access Token de longa duração na Meta
         const tokenResponse = await axios.get(`https://graph.facebook.com/v20.0/oauth/access_token`, {
             params: {
                 client_id: appId,
                 client_secret: appSecret,
                 code: code,
-                redirect_uri: 'https://neweris-food.vercel.app/perfil'
+                redirect_uri: 'https://neweris-food.vercel.app' // Certifica-te de que esta URL está exatamente igual à cadastrada no painel da Meta em "URIs de redirecionamento do OAuth válidos"
             }
+        
         });
 
         const accessToken = tokenResponse.data.access_token;
