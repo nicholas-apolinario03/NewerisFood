@@ -1,12 +1,11 @@
-import { FormularioProduto } from "../components/cardapio/FormularioProdutos";
 import { useCardapio } from "../hooks/useCardapio";
-import { useEstoque } from "../hooks/useEstoque";
 import { ListarCardapio } from "../components/cardapio/ListaCardapio";
 import { useState } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { usePedidos } from "../hooks/usePedido";
 import { FormularioPedido } from "../components/pedido/FormularioPedido";
 import { useSabores } from "../hooks/useSabores";
+import { ListarSabores } from "../components/sabores/ListaSabores";
 
 
 export function PainelEmpresa() {
@@ -62,6 +61,7 @@ export function PainelEmpresa() {
       
            
             <ListarCardapio produtos={produto} />
+            <ListarSabores sabores={sabores}/>
         </DashboardLayout>
     )
 }

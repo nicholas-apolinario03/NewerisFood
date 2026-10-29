@@ -75,7 +75,7 @@ export function EstoqueEmpresa() {
                     </div>
                 )}
 
-                {/* Seção do Formulário de Pedido Manual (Expansível) */}
+                
                 {exibirFormularioSabores && (
                     <div style={{ marginBottom: '30px' }}>
                         <FormularioSabor
