@@ -6,6 +6,8 @@ import { useState } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { usePedidos } from "../hooks/usePedido";
 import { FormularioPedido } from "../components/pedido/FormularioPedido";
+import { useSabores } from "../hooks/useSabores";
+import { FormularioSabor } from "../components/sabores/FormularioSabor";
 
 export function PainelEmpresa() {
     const { produto, erro, carregando, cadastrarProduto } = useCardapio()
@@ -13,7 +15,17 @@ export function PainelEmpresa() {
     const [exibirFormularioCardapio, setExibirFormularioCardapio] = useState(false);
     const { criarPedido } = usePedidos();
    const [exibirFormularioPedido, setExibirFormularioPedido] = useState(false);
+    const { sabores, carregando: carregandoSabores, salvarSabor } = useSabores();
+    const { insumos } = useEstoque(); // Supondo que tenhas um hook similar para insumos
 
+    async function handleSalvar(dados: any) {
+        const sucesso = await salvarSabor(dados);
+        if (sucesso) {
+            alert("Sabor cadastrado com sucesso!");
+        } else {
+            alert("Erro ao cadastrar sabor.");
+        }
+    }
     const categoriasExistentes = Array.from(
         new Set(produto.map(p => p.categoria).filter(Boolean))
     );
@@ -76,10 +88,16 @@ export function PainelEmpresa() {
                             produtosDisponiveis={produto}
                             aoSalvar={criarPedido}
                             carregando={carregando}
+                            saboresDisponiveis={sabores}
                         />
                     </div>
                 )}
             </div>
+            <FormularioSabor 
+                insumosDisponiveis={insumos}
+                aoSalvar={handleSalvar}
+                carregando={carregandoSabores}
+            />
             <ListarCardapio produtos={produto} />
         </DashboardLayout>
     )
