@@ -114,18 +114,31 @@ export async function listarPedidos(req: Request, res: Response) {
     try {
         const empresaId = (req as any).empresaId;
 
-        const pedidos = await prisma.pedido.findMany({
+        const pedidosDb = await prisma.pedido.findMany({
             where: { empresaId },
             include: {
                 cliente: true,
-                itens: true,
+                itens: true, // Traz os itens do banco
             },
             orderBy: {
                 createdAt: "desc",
             },
         });
 
-        return res.status(200).json(pedidos);
+        // Mapeia para o formato esperado pelo frontend (onde 'pedido' contém a lista de itens)
+        const pedidosFormatados = pedidosDb.map(p => ({
+            ...p,
+            pedido: p.itens.map((item: any) => ({
+                produtoId: item.produtoId,
+                nome: item.nome || "Item", // Se tiver guardado o nome ou se precisar buscar
+                quantidade: item.quantidade,
+                precoCalculado: item.precoCalculado,
+                saboresFracoes: item.saboresFracoes,
+                observacao: item.observacao
+            }))
+        }));
+
+        return res.status(200).json(pedidosFormatados);
     } catch (error: any) {
         console.error("Erro ao listar pedidos:", error);
         return res.status(500).json({ error: "Erro interno ao buscar pedidos." });

@@ -5,7 +5,7 @@ import "../../css/formulario.css";
 
 type FormularioPedidoProps = {
     produtosDisponiveis: ProdutoCardapio[];
-    saboresDisponiveis: SaborCardapio[]; // Nova prop com os sabores cadastrados
+    saboresDisponiveis: SaborCardapio[];
     aoSalvar: (dados: NovoPedidoDTO) => void;
     carregando: boolean;
 };
@@ -18,61 +18,65 @@ export function FormularioPedido({ produtosDisponiveis = [], saboresDisponiveis 
     
     const [itens, setItens] = useState<ItemPedido[]>([]);
 
-    // Estados para seleção do item atual
     const [produtoSelecionadoId, setProdutoSelecionadoId] = useState<string>("");
     const [quantidade, setQuantidade] = useState<number>(1);
     const [obsItem, setObsItem] = useState("");
     
-    // Estados para frações de sabores
-    const [saboresEscolhidos, setSaboresEscolhidos] = useState<{ saborId: string; fracao: number }[]>([]);
+    // Lista apenas com os IDs dos sabores escolhidos
+    const [saboresIdsEscolhidos, setSaboresIdsEscolhidos] = useState<string[]>([]);
 
     const produtoAtual = produtosDisponiveis.find(p => p.id === produtoSelecionadoId);
 
-    // Sempre que trocar de produto, reseta os sabores escolhidos
     useEffect(() => {
-        setSaboresEscolhidos([]);
+        setSaboresIdsEscolhidos([]);
     }, [produtoSelecionadoId]);
 
-    function handleAdicionarSaborFracao(saborId: string) {
+    // Função que adiciona o sabor e recalcula as frações de forma igualitária (ex: 1 sabor = 100%, 2 sabores = 50% cada)
+    function handleAdicionarSabor(saborId: string) {
         if (!produtoAtual) return;
         const max = produtoAtual.maxFracoes || 1;
 
-        // Se já atingiu o limite de frações, não deixa adicionar mais
-        const totalFracoesAtual = saboresEscolhidos.reduce((acc, curr) => acc + curr.fracao, 0);
-        const fracaoPadrao = 1 / max;
-
-        if (totalFracoesAtual + fracaoPadrao > 1) {
-            alert(`Este produto permite no máximo ${max} frações.`);
+        if (saboresIdsEscolhidos.length >= max) {
+            alert(`Este produto permite no máximo ${max} sabores/frações.`);
             return;
         }
 
-        setSaboresEscolhidos([...saboresEscolhidos, { saborId, fracao: fracaoPadrao }]);
+        if (saboresIdsEscolhidos.includes(saborId)) {
+            alert("Este sabor já foi adicionado.");
+            return;
+        }
+
+        const novaLista = [...saboresIdsEscolhidos, saborId];
+        setSaboresIdsEscolhidos(novaLista);
     }
 
-    function removerSaborFracao(index: number) {
-        setSaboresEscolhidos(saboresEscolhidos.filter((_, i) => i !== index));
+    function removerSabor(index: number) {
+        setSaboresIdsEscolhidos(saboresIdsEscolhidos.filter((_, i) => i !== index));
     }
 
     function adicionarItemAoPedido() {
         if (!produtoAtual) return;
 
-        if (produtoAtual.maxFracoes > 1 && saboresEscolhidos.length === 0) {
-            alert("Selecione pelo menos um sabor para este produto fracionado.");
+        if (produtoAtual.maxFracoes > 1 && saboresIdsEscolhidos.length === 0) {
+            alert("Selecione pelo menos um sabor para este produto.");
             return;
         }
 
-        // Regra de cálculo de preço: Preço Base do Tamanho + Sabor mais caro entre as frações escolhidas
+        // Recalcula a fração exata dividida pelo total de sabores escolhidos
+        const totalSabores = saboresIdsEscolhidos.length || 1;
+        const fracaoCada = 1 / totalSabores;
+
         let precoSaborMaisCaro = 0;
-        const fracoesFormatadas: SaborFracaoDTO[] = saboresEscolhidos.map(item => {
-            const saborInfo = saboresDisponiveis.find(s => s.id === item.saborId);
+        const fracoesFormatadas: SaborFracaoDTO[] = saboresIdsEscolhidos.map(saborId => {
+            const saborInfo = saboresDisponiveis.find(s => s.id === saborId);
             const precoSabor = saborInfo?.preco || 0;
             if (precoSabor > precoSaborMaisCaro) {
                 precoSaborMaisCaro = precoSabor;
             }
             return {
-                saborId: item.saborId,
+                saborId: saborId,
                 nome: saborInfo?.nome || "Sabor",
-                fracao: item.fracao,
+                fracao: fracaoCada,
                 preco: precoSabor
             };
         });
@@ -90,10 +94,10 @@ export function FormularioPedido({ produtosDisponiveis = [], saboresDisponiveis 
 
         setItens([...itens, novoItem]);
 
-        // Reseta campos
+        // Reseta os campos do item atual
         setProdutoSelecionadoId("");
         setQuantidade(1);
-        setSaboresEscolhidos([]);
+        setSaboresIdsEscolhidos([]);
         setObsItem("");
     }
 
@@ -123,7 +127,7 @@ export function FormularioPedido({ produtosDisponiveis = [], saboresDisponiveis 
         <form onSubmit={handleSubmit} className="formulario formulario--amplo">
             <header className="formulario__cabecalho">
                 <h1>📝 Novo Pedido Modular</h1>
-                <p>Atendimento de balcão / telefone com suporte a frações</p>
+                <p>Atendimento com divisão automática de frações</p>
             </header>
 
             {/* Dados do Cliente */}
@@ -150,7 +154,7 @@ export function FormularioPedido({ produtosDisponiveis = [], saboresDisponiveis 
                         <option value="">Selecione o tamanho/produto base...</option>
                         {produtosDisponiveis.map(prod => (
                             <option key={prod.id} value={prod.id}>
-                                {prod.nome} (Base: R$ {prod.precoBase.toFixed(2)})
+                                {prod.nome} (Base: R$ {prod.precoBase.toFixed(2)} — Máx. {prod.maxFracoes} sabores)
                             </option>
                         ))}
                     </select>
@@ -165,10 +169,10 @@ export function FormularioPedido({ produtosDisponiveis = [], saboresDisponiveis 
                     />
                 </div>
 
-                {/* Se o produto permitir frações, mostra a seleção de sabores */}
+                {/* Se o produto permitir frações, mostra a divisão automática */}
                 {produtoAtual && produtoAtual.maxFracoes > 1 && (
-                    <div style={{ marginTop: "10px", padding: "10px", background: "#f9f9f9", border: "1px solid #ddd" }}>
-                        <p><strong>Montagem de Sabores (Máx: {produtoAtual.maxFracoes} frações)</strong></p>
+                    <div style={{ marginTop: "10px", padding: "10px", background: "#f9f9f9", border: "1px solid #ddd", borderRadius: "6px" }}>
+                        <p style={{ margin: "0 0 6px 0" }}><strong>Montagem de Sabores (Divisão Automática)</strong></p>
                         <div style={{ display: "flex", gap: "5px", marginBottom: "8px" }}>
                             <select id="select-sabor-add" style={{ flex: 1 }}>
                                 <option value="">Escolher sabor...</option>
@@ -181,20 +185,25 @@ export function FormularioPedido({ produtosDisponiveis = [], saboresDisponiveis 
                                 className="formulario__botao-secundario"
                                 onClick={() => {
                                     const selectEl = document.getElementById("select-sabor-add") as HTMLSelectElement;
-                                    if (selectEl?.value) handleAdicionarSaborFracao(selectEl.value);
+                                    if (selectEl?.value) {
+                                        handleAdicionarSabor(selectEl.value);
+                                        selectEl.value = "";
+                                    }
                                 }}
                             >
                                 Adicionar Sabor
                             </button>
                         </div>
 
-                        <ul>
-                            {saboresEscolhidos.map((f, idx) => {
-                                const saborObj = saboresDisponiveis.find(s => s.id === f.saborId);
+                        <ul style={{ paddingLeft: "15px", margin: 0 }}>
+                            {saboresIdsEscolhidos.map((saborId, idx) => {
+                                const saborObj = saboresDisponiveis.find(s => s.id === saborId);
+                                const total = saboresIdsEscolhidos.length || 1;
+                                const porcentagem = (1 / total) * 100;
                                 return (
-                                    <li key={idx} style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                                        <span>{(f.fracao * 100)}% - {saborObj?.nome}</span>
-                                        <button type="button" onClick={() => removerSaborFracao(idx)} style={{ color: "red" }}>Remover</button>
+                                    <li key={idx} style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px", fontSize: "13px" }}>
+                                        <span><strong>{porcentagem.toFixed(0)}%</strong> — {saborObj?.nome}</span>
+                                        <button type="button" onClick={() => removerSabor(idx)} style={{ color: "red", background: "none", border: "none", cursor: "pointer" }}>Remover</button>
                                     </li>
                                 );
                             })}
@@ -221,13 +230,13 @@ export function FormularioPedido({ produtosDisponiveis = [], saboresDisponiveis 
                         <li key={index} style={{ marginBottom: "8px", borderBottom: "1px solid #eee", paddingBottom: "5px" }}>
                             <strong>{item.quantidade}x {item.nome}</strong> — R$ {(item.precoCalculado * item.quantidade).toFixed(2)}
                             {item.saboresFracoes && (
-                                <ul style={{ fontSize: "12px", color: "#666", paddingLeft: "15px" }}>
+                                <ul style={{ fontSize: "12px", color: "#666", paddingLeft: "15px", margin: "2px 0 0 0" }}>
                                     {item.saboresFracoes.map((sf, i) => (
-                                        <li key={i}>{sf.fracao * 100}% {sf.nome}</li>
+                                        <li key={i}>{Math.round(sf.fracao * 100)}% {sf.nome}</li>
                                     ))}
                                 </ul>
                             )}
-                            <button type="button" onClick={() => removerItem(index)} style={{ color: "red", float: "right" }}>X</button>
+                            <button type="button" onClick={() => removerItem(index)} style={{ color: "red", float: "right", background: "none", border: "none", cursor: "pointer" }}>X</button>
                         </li>
                     ))}
                 </ul>
