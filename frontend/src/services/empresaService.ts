@@ -31,6 +31,10 @@ export const empresaService = {
                 console.error("Erro ao buscar o perfil da empresa", error);
                 throw error;
             }
-        }
+        },
+        async atualizar(dados: NovaEmpresaDTO): Promise<Empresa> {
+        const response = await api.put("/empresa/atualizar", dados);
+        return response.data.empresa;
+    }
     
 }
