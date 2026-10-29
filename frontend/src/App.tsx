@@ -7,6 +7,7 @@ import { LoginEmpresa } from "./pages/LoginEmpresa";
 import { ProtecaoRota } from "./components/ProtecaoRota";
 import { PublicRoute } from "./components/PublicRoute";
 import { PerfilEmpresa } from "./pages/PerfilEmpresa";
+import { PaginaTotem } from "./pages/PaginaTotem";
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
       <Route path="/painel" element={<ProtecaoRota> <PainelEmpresa /> </ProtecaoRota>} />
       <Route path="/pedido" element={<ProtecaoRota><PaginaPedidos /> </ProtecaoRota>} />
       <Route path="/perfil" element={<ProtecaoRota>< PerfilEmpresa /> </ProtecaoRota>} />
+       <Route path="/totem" element={<ProtecaoRota>< PaginaTotem /> </ProtecaoRota>} />
 
 
 
