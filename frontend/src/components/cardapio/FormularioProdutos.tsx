@@ -2,6 +2,7 @@ import { useState, useEffect, type FormEvent } from "react";
 import type { ProdutoCardapio, NovoProdutoDTO, ItemReceitaDTO } from "../../types/cardapio";
 import type { Insumo } from "../../types/estoque";
 import "../../css/formulario.css";
+
 type FormularioProdutoProps = {
     produto?: ProdutoCardapio;
     insumosDisponiveis?: Insumo[];
@@ -13,7 +14,9 @@ type FormularioProdutoProps = {
 export function FormularioProduto({ produto, insumosDisponiveis = [], categorias = [], aoSalvar, carregando }: FormularioProdutoProps) {
     const [nome, setNome] = useState("");
     const [descricao, setDescricao] = useState("");
-    const [preco, setPreco] = useState<number | "">("");
+    const [precoBase, setPrecoBase] = useState<number | "">(""); // Corrigido de 'preco' para 'precoBase'
+    const [maxFracoes, setMaxFracoes] = useState<number>(1);
+    const [permiteFracionamento, setPermiteFracionamento] = useState<boolean>(true);
     const [categoria, setCategoria] = useState("");
     const [novaCategoria, setNovaCategoria] = useState("");
     const [criandoNovaCat, setCriandoNovaCat] = useState(false);
@@ -27,12 +30,13 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
         if (produto) {
             setNome(produto.nome || "");
             setDescricao(produto.descricao || "");
-            setPreco(produto.preco ?? "");
+            setPrecoBase(produto.precoBase ?? ""); // Corrigido
+            setMaxFracoes(produto.maxFracoes ?? 1);
+            setPermiteFracionamento(produto.permiteFracionamento ?? true);
             setCategoria(produto.categoria || "");
             setDisponivel(produto.disponivel ?? true);
             setIngredientes(produto.ingredientes || []);
             
-            // Se a categoria do produto não estiver na lista de categorias conhecidas
             if (produto.categoria && !categorias.includes(produto.categoria)) {
                 setCriandoNovaCat(true);
                 setNovaCategoria(produto.categoria);
@@ -61,7 +65,6 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
     function handleSubmit(e: FormEvent) {
         e.preventDefault();
         
-        // Define qual categoria será enviada (a selecionada ou a nova digitada)
         const categoriaFinal = criandoNovaCat ? novaCategoria.trim() : categoria;
 
         if (!categoriaFinal) {
@@ -72,7 +75,9 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
         aoSalvar({
             nome,
             descricao,
-            preco: Number(preco) || 0,
+            precoBase: Number(precoBase) || 0, // Corrigido
+            maxFracoes: Number(maxFracoes) || 1,
+            permiteFracionamento,
             categoria: categoriaFinal,
             disponivel,
             ingredientes
@@ -83,48 +88,72 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
         <div className="pagina-login">
         <form onSubmit={handleSubmit} className="formulario formulario--amplo">
             <header className="formulario__cabecalho">
-                <h1>{produto ? "Editar produto" : "Cadastrar produto"}</h1>
-                <p>Preencha os dados e configure a ficha técnica do produto.</p>
+                <h1>{produto ? "Editar produto base" : "Cadastrar produto base"}</h1>
+                <p>Preencha os dados estruturais e regras de fracionamento do produto.</p>
             </header>
+            
             <div className="formulario__campo">
-            <label htmlFor="produto-nome">Nome do produto</label>
-            <input
-                id="produto-nome"
-                type="text"
-                placeholder="Nome do Produto (ex: Pizza Calabresa)"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                required
-            />
+                <label htmlFor="produto-nome">Nome do Produto Base</label>
+                <input
+                    id="produto-nome"
+                    type="text"
+                    placeholder="Ex: Pizza Grande, Pizza Família"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    required
+                />
             </div>
 
             <div className="formulario__campo">
-            <label htmlFor="produto-descricao">Descrição</label>
-            <textarea
-                id="produto-descricao"
-                placeholder="Descrição (ex: Molho, mussarela, calabresa e cebola)"
-                value={descricao}
-                onChange={(e) => setDescricao(e.target.value)}
-            />
+                <label htmlFor="produto-descricao">Descrição</label>
+                <textarea
+                    id="produto-descricao"
+                    placeholder="Descrição da massa ou estrutura"
+                    value={descricao}
+                    onChange={(e) => setDescricao(e.target.value)}
+                />
             </div>
 
-            <div className="formulario__campo">
-            <label htmlFor="produto-preco">Preço</label>
-            <input
-                id="produto-preco"
-                type="number"
-                step="0.01"
-                placeholder="Preço (ex: 45.00)"
-                value={preco}
-                onChange={(e) => setPreco(e.target.value === "" ? "" : Number(e.target.value))}
-                required
-            />
+            <div className="formulario__linha" style={{ display: "flex", gap: "10px" }}>
+                <div className="formulario__campo" style={{ flex: 1 }}>
+                    <label htmlFor="produto-preco">Preço Base (Massa/Borda)</label>
+                    <input
+                        id="produto-preco"
+                        type="number"
+                        step="0.01"
+                        placeholder="Ex: 20.00"
+                        value={precoBase}
+                        onChange={(e) => setPrecoBase(e.target.value === "" ? "" : Number(e.target.value))}
+                        required
+                    />
+                </div>
+
+                <div className="formulario__campo" style={{ flex: 1 }}>
+                    <label htmlFor="max-fracoes">Máximo de Frações (Sabores)</label>
+                    <input
+                        id="max-fracoes"
+                        type="number"
+                        min="1"
+                        max="4"
+                        value={maxFracoes}
+                        onChange={(e) => setMaxFracoes(Number(e.target.value))}
+                        required
+                    />
+                </div>
             </div>
+
+            <label className="formulario__checkbox">
+                <input
+                    type="checkbox"
+                    checked={permiteFracionamento}
+                    onChange={(e) => setPermiteFracionamento(e.target.checked)}
+                />
+                Permite divisão de sabores (Fracionamento)
+            </label>
 
             {/* Campo de Seleção / Criação de Categoria */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "5px", marginTop: "10px" }}>
                 <label htmlFor="produto-categoria">Categoria:</label>
-                
                 {!criandoNovaCat ? (
                     <select
                         id="produto-categoria"
@@ -149,7 +178,7 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
                     <div style={{ display: "flex", gap: "8px" }}>
                         <input
                             type="text"
-                            placeholder="Nome da nova categoria (ex: Lanches)"
+                            placeholder="Nome da nova categoria"
                             value={novaCategoria}
                             onChange={(e) => setNovaCategoria(e.target.value)}
                             required
@@ -172,7 +201,7 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
                 )}
             </div>
 
-            <label className="formulario__checkbox">
+            <label className="formulario__checkbox" style={{ marginTop: "10px" }}>
                 <input
                     type="checkbox"
                     checked={disponivel}
@@ -183,15 +212,15 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
 
             <hr />
 
-            {/* Ficha Técnica / Insumos */}
+            {/* Ficha Técnica / Insumos Base */}
             <div>
-                <h4>Ingredientes do Estoque (Ficha Técnica)</h4>
+                <h4>Insumos Base / Embalagem (Ficha Técnica)</h4>
                 <div style={{ display: "flex", gap: "5px", marginBottom: "10px" }}>
                     <select
                         value={insumoSelecionadoId}
                         onChange={(e) => setInsumoSelecionadoId(Number(e.target.value))}
                     >
-                        <option value={0}>Selecione um insumo...</option>
+                        <option value={0}>Selecione um insumo (ex: Caixa, Farinha)...</option>
                         {insumosDisponiveis.map(insumo => (
                             <option key={insumo.id} value={insumo.id}>
                                 {insumo.nome} ({insumo.unidadeMedida})
@@ -224,7 +253,7 @@ export function FormularioProduto({ produto, insumosDisponiveis = [], categorias
             </div>
 
             <button type="submit" className="formulario__botao" disabled={carregando} style={{ marginTop: "15px" }}>
-                {carregando ? "Salvando..." : (produto ? "Salvar Alterações" : "Cadastrar Produto")}
+                {carregando ? "Salvando..." : (produto ? "Salvar Alterações" : "Cadastrar Produto Base")}
             </button>
         </form>
         </div>

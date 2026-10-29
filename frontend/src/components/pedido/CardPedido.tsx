@@ -66,7 +66,7 @@ export function CardPedido({ pedido, onMudarStatus }: CardPedidoProps) {
                 {Array.isArray(pedido.pedido) && pedido.pedido.map((item, index) => (
                     <div key={index} style={{ fontSize: '13px', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' }}>
                         <span>{item.quantidade}x {item.nome} {item.observacao && <span style={{ color: '#e03131', fontSize: '11px' }}>({item.observacao})</span>}</span>
-                        <span style={{ color: '#6c757d' }}>R$ {(item.precoUnitario * item.quantidade).toFixed(2)}</span>
+                        <span style={{ color: '#6c757d' }}>R$ {(item.precoCalculado * item.quantidade).toFixed(2)}</span>
                     </div>
                 ))}
             </div>
