@@ -12,11 +12,13 @@ import { FormularioSabor } from "../components/sabores/FormularioSabor";
 export function PainelEmpresa() {
     const { produto, erro, carregando, cadastrarProduto } = useCardapio()
     const { insumos: insumosDisponiveis } = useEstoque();
-    const [exibirFormularioCardapio, setExibirFormularioCardapio] = useState(false);
-    const { criarPedido } = usePedidos();
-   const [exibirFormularioPedido, setExibirFormularioPedido] = useState(false);
     const { sabores, carregando: carregandoSabores, salvarSabor } = useSabores();
     const { insumos } = useEstoque(); // Supondo que tenhas um hook similar para insumos
+    const { criarPedido } = usePedidos();
+    const [exibirFormularioTipos, setExibirFormularioTipos] = useState(false);
+    const [exibirFormularioPedido, setExibirFormularioPedido] = useState(false);
+     const [exibirFormularioSabores, setExibirFormularioSabores] = useState(false);
+
 
     async function handleSalvar(dados: any) {
         const sucesso = await salvarSabor(dados);
@@ -33,10 +35,10 @@ export function PainelEmpresa() {
         <DashboardLayout>
             <div>
                 <button
-                    onClick={() => setExibirFormularioCardapio(!exibirFormularioCardapio)}
+                    onClick={() => setExibirFormularioTipos(!exibirFormularioTipos)}
                     style={{
                         padding: '10px 18px',
-                        background: exibirFormularioCardapio ? '#6c757d' : '#28a745',
+                        background: exibirFormularioTipos ? '#6c757d' : '#28a745',
                         color: '#fff',
                         border: 'none',
                         borderRadius: '6px',
@@ -44,11 +46,11 @@ export function PainelEmpresa() {
                         cursor: 'pointer'
                     }}
                 >
-                    {exibirFormularioCardapio ? '✕ Fechar Formulário' : '➕ Adicionar ao Cardapio'}
+                    {exibirFormularioTipos ? '✕ Fechar Formulário' : '➕ Adicionar ao Cardapio'}
                 </button>
             </div>
             {/* Seção do Formulário de Pedido Manual (Expansível) */}
-            {exibirFormularioCardapio && (
+            {exibirFormularioTipos && (
                 <div style={{ marginBottom: '30px' }}>
                     <FormularioProduto insumosDisponiveis={insumosDisponiveis} categorias={categoriasExistentes} aoSalvar={cadastrarProduto} carregando={carregando} />
                 </div>
@@ -93,11 +95,46 @@ export function PainelEmpresa() {
                     </div>
                 )}
             </div>
-            <FormularioSabor 
+            
+
+            
+            <div>
+                <button
+                    onClick={() => setExibirFormularioSabores(!exibirFormularioSabores)}
+                    style={{
+                        padding: '10px 18px',
+                        background: exibirFormularioSabores ? '#6c757d' : '#28a745',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer'
+                    }}
+                >
+                    {exibirFormularioSabores ? '✕ Fechar Formulário' : '➕ Adicionar Sabores'}
+                </button>
+
+
+                {/* Mensagem de Erro ou Alerta */}
+                {erro && (
+                    <div style={{ background: '#f8d7da', color: '#721c24', padding: '12px', borderRadius: '6px', marginBottom: '20px' }}>
+                        {erro}
+                    </div>
+                )}
+
+                {/* Seção do Formulário de Pedido Manual (Expansível) */}
+                {exibirFormularioSabores && (
+                    <div style={{ marginBottom: '30px' }}>
+                        <FormularioSabor
                 insumosDisponiveis={insumos}
                 aoSalvar={handleSalvar}
                 carregando={carregandoSabores}
             />
+                    </div>
+                )}
+            </div>
+
+           
             <ListarCardapio produtos={produto} />
         </DashboardLayout>
     )
