@@ -1,117 +1,149 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider      = "prisma-client-js"
-  
+  provider = "prisma-client-js"
 }
+
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
-  
+  url      = env("DATABASE_URL")
 }
-model Empresa {
-  id        Int       @id @default(autoincrement()) 
-  nome      String
-  email     String    @unique
-  senha     String
-  telefone  String   
-  endereco  String
-  createdAt DateTime  @default(now())
-  
-  insumos   Insumo[]
-  produtos  Produto[]
 
-  clientes Cliente[]
+model Empresa {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  senha     String
+  telefone  String
+  endereco  String
+  createdAt DateTime @default(now())
+
+  insumos          Insumo[]
+  produtos         Produto[]
+  sabores          Sabor[]
+  clientes         Cliente[]
   whatsappBusiness BusinessWhatsapp?
-  pedidos Pedido[]
+  pedidos          Pedido[]
 }
 
 model Insumo {
-  id              Int             @id @default(autoincrement())
-  empresaId       Int
-  empresa         Empresa         @relation(fields: [empresaId], references: [id], onDelete: Cascade)
-  
-  nome            String
-  unidadeMedida   String          // 'kg', 'g', 'unidade', 'ml', 'l'
-  quantidadeAtual Float
-  estoqueMinimo   Float
+  id             Int     @id @default(autoincrement())
+  empresaId      Int
+  empresa        Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
 
-  receitas        ProdutoInsumo[]
+  nome           String
+  unidadeMedida  String // 'kg', 'g', 'unidade', 'ml', 'l'
+  quantidadeAtual Float
+  estoqueMinimo  Float
+
+  receitas ProdutoInsumo[]
+  saborInsumos SaborInsumo[]
 }
 
 model Produto {
-  id          Int             @id @default(autoincrement())
-  empresaId   Int
-  
-  nome        String
-  descricao   String?
-  preco       Float
-  categoria   String          // 'pizza', 'bebida', 'sobremesa', 'borda'
-  disponivel  Boolean         @default(true)
-  
-  ingredientes  ProdutoInsumo[]
-  @@unique([empresaId, nome])
-  empresa     Empresa         @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  id                   String   @id @default(uuid())
+  empresaId            Int      // Ajustado para Int para bater com Empresa.id
+  empresa              Empresa  @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  nome                 String   // Ex: Pizza Grande
+  descricao            String
+  categoria            String
+  precoBase            Float    // Preço base da massa/borda se houver
+  maxFracoes           Int      @default(1) // Aceita até 1, 2, 3 ou 4 sabores
+  permiteFracionamento Boolean  @default(true)
+
+  ingredientes    ProdutoInsumo[]
+  itensPedido     ItemPedido[]
+}
+
+model Sabor {
+  id         String  @id @default(uuid())
+  empresaId  Int     // Ajustado para Int para bater com Empresa.id
+  empresa    Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  nome       String  // Ex: Calabresa, Frango com Catupiry
+  preco      Float   // Preço do sabor no tamanho padrão
+  disponivel Boolean @default(true)
+  insumosSabor SaborInsumo[]
+}
+
+model ItemPedido {
+  id             String  @id @default(uuid())
+  pedidoId       Int     // Ajustado para Int para bater com Pedido.id
+  pedido         Pedido  @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produtoId      String
+  produto        Produto @relation(fields: [produtoId], references: [id])
+  quantidade     Int
+  saboresFracoes Json    // Guarda os sabores selecionados ex: [{"saborId": "...", "nome": "Calabresa", "fracao": 0.5}]
+  precoCalculado Float   // Preço final calculado para este item
 }
 
 model ProdutoInsumo {
+  id        Int     @id @default(autoincrement())
+  produtoId String  // Ajustado para String para bater com Produto.id
+  produto   Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+
+  insumoId Int
+  insumo   Insumo @relation(fields: [insumoId], references: [id], onDelete: Cascade)
+
+  quantidadeGasta Float
+}
+model SaborInsumo {
   id              Int     @id @default(autoincrement())
-  produtoId       Int
-  produto         Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  saborId         String
+  sabor           Sabor   @relation(fields: [saborId], references: [id], onDelete: Cascade)
   
   insumoId        Int
   insumo          Insumo  @relation(fields: [insumoId], references: [id], onDelete: Cascade)
   
   quantidadeGasta Float   
 }
+
 model Cliente {
-  id           Int      @id @default(autoincrement())
-  empresaId    Int
-  empresa      Empresa  @relation(fields: [empresaId], references: [id], onDelete: Cascade)
-  
-  telefone     String
-  nome         String
-  endereco     String
-  
-  pedidos      Pedido[] // Um cliente possui vários pedidos ao longo do tempo
+  id        Int     @id @default(autoincrement())
+  empresaId Int
+  empresa   Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+
+  telefone String
+  nome     String
+  endereco String
+
+  pedidos Pedido[]
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  @@unique([empresaId, telefone]) // Garante que o mesmo telefone não se repete para a mesma empresa
+  @@unique([empresaId, telefone])
 }
 
 model Pedido {
-  id           Int      @id @default(autoincrement())
-  empresaId    Int
-  empresa      Empresa  @relation(fields: [empresaId], references: [id], onDelete: Cascade)
-  
-  clienteId    Int
-  cliente      Cliente  @relation(fields: [clienteId], references: [id])
+  id        Int     @id @default(autoincrement())
+  empresaId Int
+  empresa   Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
 
-  status       String   @default("espera") // 'espera', 'preparando', 'saiu para entrega', 'concluido'
-  pedido       Json     // Armazena o array com os itens do pedido
-  observacoes  String?
-  valorTotal   Float    @default(0)
+  clienteId Int
+  cliente   Cliente @relation(fields: [clienteId], references: [id])
 
-  criadoEm     DateTime @default(now())
+  status      String       @default("espera") // 'espera', 'preparando', 'saiu para entrega', 'concluido'
+  itens       ItemPedido[] // Relação direta com os itens do pedido
+  observacoes String?
+  valorTotal  Float        @default(0)
+
+  createdAt     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 }
+
 model BusinessWhatsapp {
-  id              Int      @id @default(autoincrement())
-  empresaId       Int      @unique @map("empresa_id")
-  phoneNumberId   String   @unique @map("phone_number_id")
-  wabaId          String   @map("waba_id")
-  accessToken     String   @map("access_token")
-  verifyToken     String?  @map("verify_token")
-  status          String   @default("ativo")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id            Int      @id @default(autoincrement())
+  empresaId     Int      @unique @map("empresa_id")
+  phoneNumberId String   @unique @map("phone_number_id")
+  wabaId        String   @map("waba_id")
+  accessToken   String   @map("access_token")
+  verifyToken   String?  @map("verify_token")
+  status        String   @default("ativo")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
-  empresa         Empresa  @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
 
-  @@map("business_whatsapp")
+  @@map("business_whatsapp") 
 }

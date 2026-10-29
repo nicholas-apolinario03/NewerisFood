@@ -89,7 +89,7 @@ export async function listarPedidos(req: Request, res: Response) {
                 cliente: true, // Traz os dados do cliente relacionado
             },
             orderBy: {
-                criadoEm: "desc", // Mostra os pedidos mais recentes primeiro
+                createdAt: "desc", // Mostra os pedidos mais recentes primeiro
             },
         });
 

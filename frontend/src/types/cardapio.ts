@@ -1,19 +1,31 @@
-// Define o item do insumo dentro da ficha técnica do produto
+// Define o item do insumo dentro da ficha técnica
 export type ItemReceitaDTO = {
     insumoId: number;
-    quantidadeGasta: number; // Quanto gasta desse insumo para fazer 1 unidade do produto
+    quantidadeGasta: number; 
 };
 
-// Estrutura de um Produto do Cardápio
+// Estrutura de um Sabor (Recheio e respetiva ficha técnica de insumos)
+export type SaborCardapio = {
+    id: string;
+    nome: string;
+    preco: number;
+    disponivel: boolean;
+    ingredientes?: ItemReceitaDTO[];
+};
+
+// Estrutura de um Produto Base do Cardápio (Ex: Pizza Grande, Bebidas, etc.)
 export type ProdutoCardapio = {
-    id: number;
+    id: string;
     nome: string;
     descricao: string;
-    preco: number;
-    categoria: string
+    precoBase: number; // Substituiu o preço fixo antigo
+    categoria: string;
     disponivel: boolean;
-    ingredientes?: ItemReceitaDTO[]; // Opcional: liga o produto ao estoque
+    maxFracoes: number;          // Ex: 1 para bebidas, 2 ou mais para pizzas
+    permiteFracionamento: boolean;
+    ingredientes?: ItemReceitaDTO[]; // Insumos base opcionais (ex: caixa, massa)
 };
 
-// DTO para criação (sem ID)
+// DTOs para criação (sem ID)
 export type NovoProdutoDTO = Omit<ProdutoCardapio, 'id'>;
+export type NovoSaborDTO = Omit<SaborCardapio, 'id'>;
