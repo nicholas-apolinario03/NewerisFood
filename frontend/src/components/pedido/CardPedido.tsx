@@ -7,7 +7,6 @@ type CardPedidoProps = {
 
 export function CardPedido({ pedido, onMudarStatus }: CardPedidoProps) {
     
-    // Função auxiliar para definir o próximo status no fluxo do Kanban
     function obterProximoStatus(statusAtual: StatusPedido): StatusPedido | null {
         switch (statusAtual) {
             case 'espera': return 'preparando';
@@ -25,7 +24,6 @@ export function CardPedido({ pedido, onMudarStatus }: CardPedidoProps) {
         }
     }
 
-    // Cores dinâmicas simples para o selo de status
     const corStatusMap: Record<StatusPedido, string> = {
         'espera': '#e67e22',
         'preparando': '#f59f00',
@@ -60,13 +58,35 @@ export function CardPedido({ pedido, onMudarStatus }: CardPedidoProps) {
                 <p style={{ margin: '0' }}><strong>Endereço:</strong> {pedido.cliente?.endereco || 'Retirada no local'}</p>
             </div>
 
-            {/* Lista de Itens (JSON) */}
+            {/* Lista de Itens e Sabores Fracionados */}
             <div style={{ borderTop: '1px dashed #dee2e6', borderBottom: '1px dashed #dee2e6', padding: '8px 0', marginBottom: '10px' }}>
                 <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: 'bold', color: '#6c757d' }}>ITENS:</p>
                 {Array.isArray(pedido.pedido) && pedido.pedido.map((item, index) => (
-                    <div key={index} style={{ fontSize: '13px', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' }}>
-                        <span>{item.quantidade}x {item.nome} {item.observacao && <span style={{ color: '#e03131', fontSize: '11px' }}>({item.observacao})</span>}</span>
-                        <span style={{ color: '#6c757d' }}>R$ {(item.precoCalculado * item.quantidade).toFixed(2)}</span>
+                    <div key={index} style={{ fontSize: '13px', marginBottom: '8px', borderBottom: index < pedido.pedido.length - 1 ? '1px solid #f1f3f5' : 'none', paddingBottom: '4px' }}>
+                        
+                        {/* Nome do Produto Base e Preço */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span><strong>{item.quantidade}x {item.nome}</strong></span>
+                            <span style={{ color: '#6c757d' }}>R$ {(item.precoCalculado * item.quantidade).toFixed(2)}</span>
+                        </div>
+
+                        {/* Exibição detalhada dos Sabores / Frações associados ao item */}
+                        {item.saboresFracoes && Array.isArray(item.saboresFracoes) && item.saboresFracoes.length > 0 && (
+                            <ul style={{ fontSize: '12px', color: '#333', margin: '3px 0 3px 15px', padding: 0, listStyleType: 'disc' }}>
+                                {item.saboresFracoes.map((sf: any, i: number) => (
+                                    <li key={i}>
+                                        <strong>{Math.round(sf.fracao * 100)}%</strong> — {sf.nome}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+
+                        {/* Observação do item */}
+                        {item.observacao && (
+                            <p style={{ color: '#e03131', fontSize: '11px', margin: '2px 0 0 0', fontStyle: 'italic' }}>
+                                Obs: {item.observacao}
+                            </p>
+                        )}
                     </div>
                 ))}
             </div>
@@ -74,7 +94,7 @@ export function CardPedido({ pedido, onMudarStatus }: CardPedidoProps) {
             {/* Observações gerais do pedido, se houver */}
             {pedido.observacoes && (
                 <p style={{ fontSize: '12px', color: '#e03131', fontStyle: 'italic', margin: '0 0 10px 0' }}>
-                    Obs: {pedido.observacoes}
+                    Obs Geral: {pedido.observacoes}
                 </p>
             )}
 

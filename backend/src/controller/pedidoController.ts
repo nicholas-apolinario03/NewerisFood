@@ -118,19 +118,23 @@ export async function listarPedidos(req: Request, res: Response) {
             where: { empresaId },
             include: {
                 cliente: true,
-                itens: true, // Traz os itens do banco
+                itens: {
+                    include: {
+                        produto: { select: { nome: true } } // <-- Busca o nome atualizado do produto base
+                    }
+                },
             },
             orderBy: {
                 createdAt: "desc",
             },
         });
 
-        // Mapeia para o formato esperado pelo frontend (onde 'pedido' contém a lista de itens)
+        // Mapeia para estruturar no formato esperado pelo frontend
         const pedidosFormatados = pedidosDb.map(p => ({
             ...p,
             pedido: p.itens.map((item: any) => ({
                 produtoId: item.produtoId,
-                nome: item.nome || "Item", // Se tiver guardado o nome ou se precisar buscar
+                nome: item.produto?.nome || "Produto", // <-- Atribui o nome correto
                 quantidade: item.quantidade,
                 precoCalculado: item.precoCalculado,
                 saboresFracoes: item.saboresFracoes,
