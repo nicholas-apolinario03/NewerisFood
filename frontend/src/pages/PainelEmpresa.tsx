@@ -9,8 +9,8 @@ import { ListarSabores } from "../components/sabores/ListaSabores";
 
 
 export function PainelEmpresa() {
-    const { produto, erro, carregando, cadastrarProduto } = useCardapio()
-    const { sabores,  salvarSabor } = useSabores(); // Supondo que tenhas um hook similar para insumos
+    const { produto, erro, carregando } = useCardapio()
+    const { sabores   } = useSabores(); // Supondo que tenhas um hook similar para insumos
     const { criarPedido } = usePedidos();
     const [exibirFormularioPedido, setExibirFormularioPedido] = useState(false);
 
