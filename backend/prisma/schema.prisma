@@ -51,7 +51,7 @@ model Produto {
   precoBase            Float    // Preço base da massa/borda se houver
   maxFracoes           Int      @default(1) // Aceita até 1, 2, 3 ou 4 sabores
   permiteFracionamento Boolean  @default(true)
-
+  disponivel Boolean @default(true)
   ingredientes    ProdutoInsumo[]
   itensPedido     ItemPedido[]
 }

@@ -6,6 +6,7 @@ import { produtoRoutes } from './routes/produtoRoute';
 import {pedidoRoutes} from './routes/pedidoRoute';
 import { whatsappRoutes } from './routes/whatsappRoutes';
 import { whatsappConfigRoutes } from './routes/whatsappConfigRoute';
+import { saborRoutes } from './routes/saborRoute';
 const app = express();
 
 app.use(cors());
@@ -17,5 +18,6 @@ app.use('/empresa/cardapio', produtoRoutes);
 app.use('/empresa/pedido', pedidoRoutes);
 app.use('/whatsapp', whatsappRoutes);
 app.use('/api/whatsapp', whatsappConfigRoutes);
+app.use('/sabores', saborRoutes);
 
 export default app;
