@@ -11,18 +11,16 @@ type TotemPedidoProps = {
 };
 
 export function TotemPedido({ produtosDisponiveis = [], saboresDisponiveis = [], aoSalvar, carregando }: TotemPedidoProps) {
-    // Etapas: 'categoria' -> 'produto' -> 'sabores' -> 'cliente'
     const [etapa, setEtapa] = useState<'categoria' | 'produto' | 'sabores' | 'cliente'>('categoria');
     
-    // Filtro e Seleções
     const [categoriaSelecionada, setCategoriaSelecionada] = useState<string>("");
     const [produtoSelecionado, setProdutoSelecionado] = useState<ProdutoCardapio | null>(null);
-    const [saboresEscolhidos, setSaboresEscolhidos] = useState<SaborCardapio[]>([]);
+    
+    // Lista de IDs dos sabores escolhidos progressivamente (1 = 100%, 2 = 50% cada, etc.)
+    const [saboresIdsEscolhidos, setSaboresIdsEscolhidos] = useState<string[]>([]);
 
-    // Carrinho
     const [itens, setItens] = useState<ItemPedido[]>([]);
 
-    // Dados do Cliente (Passo Final)
     const [telefone, setTelefone] = useState("");
     const [nome, setNome] = useState("");
     const [endereco, setEndereco] = useState("");
@@ -37,59 +35,87 @@ export function TotemPedido({ produtosDisponiveis = [], saboresDisponiveis = [],
 
     function selecionarProduto(prod: ProdutoCardapio) {
         setProdutoSelecionado(prod);
-        setSaboresEscolhidos([]);
+        setSaboresIdsEscolhidos([]);
 
         if (prod.maxFracoes && prod.maxFracoes > 1) {
             setEtapa('sabores');
         } else {
-            adicionarItemAoCarrinho(prod, []);
+            // Bebidas ou itens sem frações adicionam direto
+            adicionarItemAoCarrinhoDireto(prod);
             setEtapa('categoria');
         }
     }
 
-    function selecionarSabor(sabor: SaborCardapio) {
+    // Adiciona o sabor progressivamente e recalcula as frações automaticamente
+    function handleAdicionarSaborTotem(saborId: string) {
         if (!produtoSelecionado) return;
         const max = produtoSelecionado.maxFracoes || 1;
 
-        if (saboresEscolhidos.length >= max) {
+        if (saboresIdsEscolhidos.length >= max) {
             alert(`Este produto aceita no máximo ${max} sabores.`);
             return;
         }
 
-        const novaLista = [...saboresEscolhidos, sabor];
-        setSaboresEscolhidos(novaLista);
-
-        if (novaLista.length === max) {
-            adicionarItemAoCarrinho(produtoSelecionado, novaLista);
-            setEtapa('categoria');
+        if (saboresIdsEscolhidos.includes(saborId)) {
+            alert("Este sabor já foi adicionado.");
+            return;
         }
+
+        setSaboresIdsEscolhidos([...saboresIdsEscolhidos, saborId]);
     }
 
-    function adicionarItemAoCarrinho(prod: ProdutoCardapio, sabores: SaborCardapio[]) {
-        const totalSabores = sabores.length || 1;
+    function removerSaborTotem(index: number) {
+        setSaboresIdsEscolhidos(saboresIdsEscolhidos.filter((_, i) => i !== index));
+    }
+
+    function confirmarSaboresEAdicionar() {
+        if (!produtoSelecionado) return;
+
+        if (produtoSelecionado.maxFracoes > 1 && saboresIdsEscolhidos.length === 0) {
+            alert("Selecione pelo menos um sabor.");
+            return;
+        }
+
+        const totalSabores = saboresIdsEscolhidos.length || 1;
         const fracaoCada = 1 / totalSabores;
 
         let precoSaborMaisCaro = 0;
-        const fracoesFormatadas: SaborFracaoDTO[] = sabores.map(s => {
-            if (s.preco > precoSaborMaisCaro) precoSaborMaisCaro = s.preco;
+        const fracoesFormatadas: SaborFracaoDTO[] = saboresIdsEscolhidos.map(saborId => {
+            const saborInfo = saboresDisponiveis.find(s => s.id === saborId);
+            const precoSabor = saborInfo?.preco || 0;
+            if (precoSabor > precoSaborMaisCaro) {
+                precoSaborMaisCaro = precoSabor;
+            }
             return {
-                saborId: s.id,
-                nome: s.nome,
+                saborId: saborId,
+                nome: saborInfo?.nome || "Sabor",
                 fracao: fracaoCada,
-                preco: s.preco
+                preco: precoSabor
             };
         });
 
-        const precoCalculado = (prod.precoBase || 0) + precoSaborMaisCaro;
+        const precoCalculado = (produtoSelecionado.precoBase || 0) + precoSaborMaisCaro;
 
         const novoItem: ItemPedido = {
-            produtoId: prod.id,
-            nome: prod.nome,
+            produtoId: produtoSelecionado.id,
+            nome: produtoSelecionado.nome,
             quantidade: 1,
             precoCalculado,
             saboresFracoes: fracoesFormatadas.length > 0 ? fracoesFormatadas : undefined
         };
 
+        setItens([...itens, novoItem]);
+        setSaboresIdsEscolhidos([]);
+        setEtapa('categoria');
+    }
+
+    function adicionarItemAoCarrinhoDireto(prod: ProdutoCardapio) {
+        const novoItem: ItemPedido = {
+            produtoId: prod.id,
+            nome: prod.nome,
+            quantidade: 1,
+            precoCalculado: prod.precoBase || 0
+        };
         setItens([...itens, novoItem]);
     }
 
@@ -162,18 +188,21 @@ export function TotemPedido({ produtosDisponiveis = [], saboresDisponiveis = [],
                 </div>
             )}
 
-            {/* ETAPA 3: ESCOLHER SABORES (PIZZAS) */}
+            {/* ETAPA 3: ESCOLHER SABORES PROGRESSIVAMENTE (COM DIVISÃO AUTOMÁTICA) */}
             {etapa === 'sabores' && produtoSelecionado && (
                 <div>
                     <button onClick={() => setEtapa('produto')} style={{ marginBottom: '12px', background: 'none', border: 'none', color: '#007bff', cursor: 'pointer', fontWeight: 'bold' }}>
                         ⬅ Voltar aos Tamanhos
                     </button>
-                    <h3>3. Escolha os Sabores ({saboresEscolhidos.length}/{produtoSelecionado.maxFracoes}):</h3>
+                    <h3>3. Monte os Sabores ({saboresIdsEscolhidos.length}/{produtoSelecionado.maxFracoes}):</h3>
+                    <p style={{ fontSize: '13px', color: '#666' }}>O valor divide-se automaticamente conforme seleciona os sabores.</p>
+
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginTop: '15px' }}>
                         {saboresDisponiveis.map(sab => (
                             <button
                                 key={sab.id}
-                                onClick={() => selecionarSabor(sab)}
+                                type="button"
+                                onClick={() => handleAdicionarSaborTotem(sab.id)}
                                 style={{ padding: '14px', background: '#e7f5ff', border: '1px solid #74c0fc', borderRadius: '8px', cursor: 'pointer', textAlign: 'left' }}
                             >
                                 <strong>{sab.nome}</strong>
@@ -181,6 +210,34 @@ export function TotemPedido({ produtosDisponiveis = [], saboresDisponiveis = [],
                             </button>
                         ))}
                     </div>
+
+                    {/* Exibe os sabores já selecionados com suas porcentagens dinâmicas */}
+                    {saboresIdsEscolhidos.length > 0 && (
+                        <div style={{ marginTop: '20px', background: '#f8f9fa', padding: '12px', borderRadius: '8px', border: '1px solid #ced4da' }}>
+                            <h4>Sabores Escolhidos para este item:</h4>
+                            <ul style={{ paddingLeft: '15px', margin: '5px 0' }}>
+                                {saboresIdsEscolhidos.map((saborId, idx) => {
+                                    const saborObj = saboresDisponiveis.find(s => s.id === saborId);
+                                    const total = saboresIdsEscolhidos.length || 1;
+                                    const porcentagem = (1 / total) * 100;
+                                    return (
+                                        <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '14px' }}>
+                                            <span><strong>{porcentagem.toFixed(0)}%</strong> — {saborObj?.nome}</span>
+                                            <button type="button" onClick={() => removerSaborTotem(idx)} style={{ color: 'red', background: 'none', border: 'none', cursor: 'pointer' }}>Remover</button>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+
+                            <button 
+                                type="button" 
+                                onClick={confirmarSaboresEAdicionar}
+                                style={{ marginTop: '10px', width: '100%', padding: '10px', background: '#2b8a3e', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}
+                            >
+                                ✅ Adicionar Item ao Carrinho
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -204,7 +261,7 @@ export function TotemPedido({ produtosDisponiveis = [], saboresDisponiveis = [],
                 </form>
             )}
 
-            {/* RESUMO DO CARRINHO (Sempre visível para acompanhar) */}
+            {/* RESUMO DO CARRINHO */}
             {itens.length > 0 && etapa !== 'cliente' && (
                 <div style={{ marginTop: '30px', borderTop: '2px dashed #dee2e6', paddingTop: '15px' }}>
                     <h4>🛒 Carrinho Atual ({itens.length} itens)</h4>
