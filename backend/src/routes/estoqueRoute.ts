@@ -55,3 +55,45 @@ estoqueRoutes.get('/lista', async (req, res) => {
     }
 
 })
+estoqueRoutes.delete("/empresa/estoque/:id",  async (req, res)=>{
+    try {
+        const empresaId = (req as any).empresaId;
+        const { id } = req.params;
+
+        // 1. Verifica se o insumo existe e pertence à empresa autenticada
+        const insumoExiste = await prisma.insumo.findFirst({
+            where: { 
+                id: Number(id),
+                empresaId 
+            }
+        });
+
+        if (!insumoExiste) {
+            return res.status(404).json({ error: "Insumo não encontrado ou não pertence à sua empresa." });
+        }
+
+        // 2. Limpa os vínculos de ficha técnica e apaga o insumo em uma transação
+        await prisma.$transaction(async (tx) => {
+            // Remove os vínculos da ficha técnica dos produtos
+            await tx.produtoInsumo.deleteMany({
+                where: { insumoId: Number(id) }
+            });
+
+            // Remove os vínculos da ficha técnica dos sabores
+            await tx.saborInsumo.deleteMany({
+                where: { insumoId: Number(id) }
+            });
+
+            // Elimina o insumo do estoque
+            await tx.insumo.delete({
+                where: { id: Number(id) }
+            });
+        });
+
+        return res.status(200).json({ message: "Insumo excluído com sucesso do estoque." });
+    } catch (error: any) {
+        console.error("Erro ao excluir insumo do estoque:", error);
+        return res.status(500).json({ error: "Erro interno ao excluir insumo do estoque." });
+    }
+});
+

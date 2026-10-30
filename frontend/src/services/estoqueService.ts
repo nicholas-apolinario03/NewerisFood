@@ -21,6 +21,14 @@ export const estoqueService = {
             console.error("Erro ao listar o cardápio", error);
             throw error;
         }
+    },
+    excluir: async (id: number | string): Promise<void> => {
+        try {
+            await api.delete(`/empresa/estoque/${id}`);
+        } catch (error) {
+            console.error("Erro ao excluir insumo do estoque", error);
+            throw error;
+        }
     }
     
 }
