@@ -55,7 +55,7 @@ estoqueRoutes.get('/lista', async (req, res) => {
     }
 
 })
-estoqueRoutes.delete("/empresa/estoque/:id",  async (req, res)=>{
+estoqueRoutes.delete("/:id",  async (req, res)=>{
     try {
         const empresaId = (req as any).empresaId;
         const { id } = req.params;
