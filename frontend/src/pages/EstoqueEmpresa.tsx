@@ -10,7 +10,7 @@ import { ListarEstoque } from "../components/estoque/ListaEstoque";
 import { FormularioSabor } from "../components/sabores/FormularioSabor";
 
 export function EstoqueEmpresa() {
-    const { insumos, carregando, erro, cadastrarInsumo } = useEstoque();
+    const { insumos, carregando, erro, cadastrarInsumo, excluirInsumo } = useEstoque();
     const { produto, cadastrarProduto } = useCardapio()
     const { insumos: insumosDisponiveis } = useEstoque();
     const { carregando: carregandoSabores, salvarSabor } = useSabores();
@@ -126,7 +126,7 @@ export function EstoqueEmpresa() {
 
 
             <h2>Lista de Produtos</h2>
-            <ListarEstoque insumos={insumos} />
+            <ListarEstoque insumos={insumos} onExcluir={excluirInsumo} />
         </DashboardLayout>
     )
 }

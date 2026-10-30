@@ -33,6 +33,19 @@ export function useEstoque() {
             return false;
         }
     }
+    async function excluirInsumo(id: number | string): Promise<boolean> {
+        try {
+            await estoqueService.excluir(id);
+            // Remove o insumo da lista localmente para atualizar a tela na hora
+            setInsumos(prev => prev.filter(insumo => insumo.id !== id));
+            return true;
+        } catch (err: any) {
+            setErro(err.message || 'Erro ao excluir o insumo.');
+            alert(err.message || 'Erro ao excluir o insumo.');
+            return false;
+        }
+    }
+
 
     // Aqui futuramente entram as funções de editar e deletar com facilidade!
 
@@ -41,6 +54,7 @@ export function useEstoque() {
         carregando,
         erro,
         cadastrarInsumo,
+        excluirInsumo,
         recarregarEstoque: carregarEstoque
     };
 }
