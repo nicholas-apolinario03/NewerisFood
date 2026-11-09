@@ -2,13 +2,16 @@ import { useState, type FormEvent } from "react";
 import { empresaService } from "../services/empresaService";
 import DashboardLayout from "../layouts/DashboardLayout";
 import "../css/formulario.css";
-import { Navigate, redirect } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 
 export function LoginEmpresa() {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [carregando, setCarregando] = useState(false);
     const [erro, setErro] = useState("");
+     const navigate =
+        useNavigate();
+
 
     async function enviarLogin(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -23,7 +26,9 @@ export function LoginEmpresa() {
             }
 
             alert("Login feito com sucesso!!!");
-           return <Navigate to="/painel" replace />;
+          navigate(
+                "/painel"
+            );
         } catch (err) {
             setErro(
                 "Não foi possível realizar o login. Verifique o email e a senha."

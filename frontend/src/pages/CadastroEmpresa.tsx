@@ -1,12 +1,15 @@
-import { useState} from "react";
+import { useState } from "react";
 import { empresaService } from "../services/empresaService";
 import { FormularioEmpresa } from "../components/empresa/FormularioEmpresa";
 import type { NovaEmpresaDTO } from "../types/empresa";
 import DashboardLayout from "../layouts/DashboardLayout";
+import { useNavigate } from "react-router-dom";
 
 export function CadastroEmpresa() {
     const [carregando, setCarregando] = useState(false);
     const [erro, setErro] = useState('');
+    const navigate =
+        useNavigate();
 
     async function enviarCadastro(dadosEmpresa: NovaEmpresaDTO) {
         setCarregando(true);
@@ -15,9 +18,12 @@ export function CadastroEmpresa() {
         try {
             const resultado = await empresaService.criar(dadosEmpresa)
             console.log('Empresa cadastrada com sucesso')
-            if(resultado.token){
-            localStorage.setItem('token_auth', resultado.token)
+            if (resultado.token) {
+                localStorage.setItem('token_auth', resultado.token)
             }
+            navigate(
+                "/painel"
+            );
         } catch (err) {
             setErro('Não foi possível realizar o cadastro. Verifique os dados ou o backend.');
         } finally {

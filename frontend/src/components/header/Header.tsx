@@ -34,7 +34,7 @@ export default function Header() {
                     to="/"
                     className="header-principal__logo"
                 >
-                 <span> NewerisBook</span>
+                 <span> NewerisFood</span>
                 </Link>
 
                 {logado ? (
