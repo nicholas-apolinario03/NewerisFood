@@ -7,12 +7,23 @@ export function usePedidos() {
     const [carregando, setCarregando] = useState(false);
     const [erro, setErro] = useState<string | null>(null);
 
-    const carregarPedidos = useCallback(async () => {
+   const carregarPedidos = useCallback(async () => {
         setCarregando(true);
         setErro(null);
         try {
             const dados = await pedidoService.listar();
-            setPedidos(dados);
+            
+            // FILTRAR APENAS AS ÚLTIMAS 24 HORAS
+            const agora = new Date().getTime();
+            const vinteQuatroHorasAtras = agora - (24 * 60 * 60 * 1000);
+
+            const pedidosRecentes = dados.filter(pedido => {
+                // Substitui 'createdAt' pelo nome exato do campo de data que vem do teu backend (ex: dataCriacao)
+                const dataPedido = new Date(pedido.criadoEm || '').getTime();
+                return dataPedido >= vinteQuatroHorasAtras;
+            });
+
+            setPedidos(pedidosRecentes);
         } catch (err: any) {
             setErro(err.message || 'Erro inesperado ao carregar pedidos.');
         } finally {
