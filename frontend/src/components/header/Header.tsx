@@ -4,25 +4,15 @@ import "../../css/header.css"
 
 
 export default function Header() {
-    const navigate =
-        useNavigate();
+    const navigate = useNavigate();
+const token = localStorage.getItem("token_auth");
 
-    const token =
-        localStorage.getItem(
-            "token_auth"
-        );
-
-    const logado =
-        Boolean(token);
+    const logado = Boolean(token);
 
     function sair() {
-        localStorage.removeItem(
-            "token_auth"
-        );
+        localStorage.removeItem( "token_auth");
 
-        navigate(
-            "/login"
-        );
+        navigate( "/login");
 
         window.location.reload();
     }

@@ -6,18 +6,19 @@ import { usePedidos } from "../hooks/usePedido";
 import { FormularioPedido } from "../components/pedido/FormularioPedido";
 import { useSabores } from "../hooks/useSabores";
 import { ListarSabores } from "../components/sabores/ListaSabores";
+import { ListaPedidos } from "../components/pedido/ListaPedido";
 
 
 export function PainelEmpresa() {
     const { produto, erro, carregando } = useCardapio()
-    const { sabores   } = useSabores(); // Supondo que tenhas um hook similar para insumos
+    const { sabores } = useSabores(); // Supondo que tenhas um hook similar para insumos
     const { criarPedido } = usePedidos();
     const [exibirFormularioPedido, setExibirFormularioPedido] = useState(false);
-
+    const { pedidos, alterarStatusPedido } = usePedidos();
 
     return (
         <DashboardLayout>
-          
+
 
 
             <div>
@@ -56,12 +57,12 @@ export function PainelEmpresa() {
                     </div>
                 )}
             </div>
-            
 
-      
-           
+
+            <ListaPedidos pedidos={pedidos} onMudarStatus={alterarStatusPedido} />
+
             <ListarCardapio produtos={produto} />
-            <ListarSabores sabores={sabores}/>
+            <ListarSabores sabores={sabores} />
         </DashboardLayout>
     )
 }
