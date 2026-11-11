@@ -1,0 +1,85 @@
+/* Layout Principal em Grelha (2 Colunas) */
+.painel-empresa {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+    margin-top: 20px;
+}
+
+/* Coluna Esquerda: Formulário de Novo Pedido */
+.painel-empresa__coluna-esquerda {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.painel-empresa__titulo {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Coluna Direita: Conjunto de Listas Recolhíveis */
+.painel-empresa__coluna-direita {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Cartão / Bloco Acordeão das Listas */
+.painel-empresa__bloco-lista {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Cabeçalho Clicável para Expandir/Recolher */
+.painel-empresa__cabecalho-lista {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+}
+
+.painel-empresa__subtitulo {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333333;
+}
+
+.painel-empresa__indicador {
+    font-size: 14px;
+    font-weight: 700;
+    color: #007bff;
+}
+
+/* Conteúdo Expansível */
+.painel-empresa__conteudo-lista {
+    margin-top: 12px;
+    border-top: 1px solid #e9ecef;
+    padding-top: 12px;
+}
+
+/* Alerta de Erro */
+.painel-empresa__alerta-erro {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+/* Suporte Responsivo para Ecrãs Pequenos / Telemóveis */
+@media (max-width: 900px) {
+    .painel-empresa {
+        grid-template-columns: 1fr;
+    }
+}
