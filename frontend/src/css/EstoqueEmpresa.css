@@ -1,0 +1,81 @@
+/* Layout Principal em Grelha (2 Colunas) para o Estoque */
+.estoque-empresa {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+    margin-top: 20px;
+}
+
+/* Coluna Esquerda: Formulários Retráteis */
+.estoque-empresa__coluna-esquerda {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Coluna Direita: Lista Principal de Estoque */
+.estoque-empresa__coluna-direita {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Bloco Acordeão dos Formulários */
+.estoque-empresa__bloco-formulario {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.estoque-empresa__cabecalho-formulario {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+}
+
+.estoque-empresa__subtitulo {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333333;
+}
+
+.estoque-empresa__indicador {
+    font-size: 14px;
+    font-weight: 700;
+    color: #007bff;
+}
+
+.estoque-empresa__conteudo-formulario {
+    margin-top: 16px;
+    border-top: 1px solid #e9ecef;
+    padding-top: 16px;
+}
+
+.estoque-empresa__titulo {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.estoque-empresa__alerta-erro {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+    .estoque-empresa {
+        grid-template-columns: 1fr;
+    }
+}
