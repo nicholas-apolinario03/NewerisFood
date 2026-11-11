@@ -132,6 +132,7 @@ export async function listarPedidos(req: Request, res: Response) {
         // Mapeia para estruturar no formato esperado pelo frontend
         const pedidosFormatados = pedidosDb.map(p => ({
             ...p,
+            criadoEm: p.createdAt,
             pedido: p.itens.map((item: any) => ({
                 produtoId: item.produtoId,
                 nome: item.produto?.nome || "Produto", // <-- Atribui o nome correto
