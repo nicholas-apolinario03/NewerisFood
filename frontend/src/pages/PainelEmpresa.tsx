@@ -35,7 +35,6 @@ export function PainelEmpresa() {
 
                 {/* COLUNA ESQUERDA: Formulário de Novo Pedido */}
                 <div className="painel-empresa__coluna-esquerda">
-                    <h2 className="painel-empresa__titulo">📝 Novo Pedido (Balcão / Tel)</h2>
                     <FormularioPedido
                         produtosDisponiveis={produto}
                         aoSalvar={criarPedido}
